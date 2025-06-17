@@ -87,7 +87,8 @@ class VehicleScreen extends ConsumerWidget {
                 title: Text(vehicle.name),
                 subtitle: Text(vehicle.nickname),
                 onTap: () {
-                  context.go('/vehicle/${vehicle.id}');
+                  // context.go('/vehicle/${vehicle.id}');
+                  context.push('/vehicle/${vehicle.id}');
                 },
               );
             },
