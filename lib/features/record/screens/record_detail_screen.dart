@@ -52,8 +52,6 @@ class RecordDetailScreen extends ConsumerWidget {
           return Markdown(
             data: record.content,
             padding: const EdgeInsets.all(16.0),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
             selectable: true,
           );
         },
