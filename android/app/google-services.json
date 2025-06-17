@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "326840974680",
+    "project_id": "madoi-70741",
+    "storage_bucket": "madoi-70741.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326840974680:android:dd3507e6f7c8c14f83f92d",
+        "android_client_info": {
+          "package_name": "com.example.madoi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326840974680-nvkn5e9spdirs699rb72pk1u80d36qs0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuGscH-yiMre7oSWDKmrzM8lJDg3H4sGg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326840974680-nvkn5e9spdirs699rb72pk1u80d36qs0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
