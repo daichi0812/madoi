@@ -32,6 +32,16 @@ class RecordDetailScreen extends ConsumerWidget {
     );
 
     return Scaffold(
+      // AppBarをScaffoldの中に移動し、タイトルも動的に設定
+      appBar: AppBar(
+        title: Text(
+          recordData.value != null
+              ? DateFormat(
+                  'yyyy/MM/dd',
+                ).format(recordData.value!.recordDate.toDate())
+              : '詳細',
+        ),
+      ),
       // .whenを使って、データの状態に応じて表示を切り替える
       body: recordData.when(
         data: (record) {
@@ -39,26 +49,16 @@ class RecordDetailScreen extends ConsumerWidget {
             return const Center(child: Text('記録が見つかりません'));
           }
           // Markdown表示エリアをスクロール可能にする
-          return SingleChildScrollView(
-            child: Markdown(
-              data: record.content,
-              padding: const EdgeInsets.all(16.0),
-              selectable: true,
-            ),
+          return Markdown(
+            data: record.content,
+            padding: const EdgeInsets.all(16.0),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            selectable: true,
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('エラー: $err')),
-      ),
-      // AppBarをScaffoldの中に移動し、タイトルも動的に設定
-      appBar: AppBar(
-        title: Text(
-          recordData.hasValue
-              ? DateFormat(
-                  'yyyy/MM/dd',
-                ).format(recordData.value!.recordDate.toDate())
-              : '詳細',
-        ),
       ),
     );
   }
