@@ -2,21 +2,30 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equatable/equatable.dart';
 
 import 'package:madoi/features/record/models/record_model.dart';
 import 'package:madoi/features/record/repositories/record_repository.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
-// Repository
+// ★★★ 1. 引数用の専用クラスを作成 ★★★
+class RecordsProviderArgs extends Equatable {
+  final String vehicleId;
+  final RecordType type;
+
+  const RecordsProviderArgs({required this.vehicleId, required this.type});
+
+  @override
+  List<Object?> get props => [vehicleId, type];
+}
+
+// Repository (変更なし)
 final recordRepositoryProvider = Provider((ref) => RecordRepository());
 
-// 記録一覧を取得するProvider.family
-// 引数を複数渡すため、RecordTypeとvehicleIdをMapで受け取る
+// ★★★ 2. recordsProviderの定義を修正 ★★★
 final recordsProvider =
-    StreamProvider.family<List<RecordModel>, Map<String, dynamic>>((ref, args) {
-      final vehicleId = args['vehicleId'] as String;
-      final type = args['type'] as RecordType;
-      // アクティブなワークスペースIDを取得
+    StreamProvider.family<List<RecordModel>, RecordsProviderArgs>((ref, args) {
+      // Map<String, dynamic> ではなく RecordsProviderArgs を使う
       final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
 
       if (activeWorkspaceId == null) {
@@ -26,8 +35,8 @@ final recordsProvider =
       return ref
           .watch(recordRepositoryProvider)
           .getRecordsStream(
-            vehicleId: vehicleId,
-            type: type,
+            vehicleId: args.vehicleId, // args.vehicleId でアクセス
+            type: args.type, // args.type でアクセス
             workspaceId: activeWorkspaceId,
           );
     });

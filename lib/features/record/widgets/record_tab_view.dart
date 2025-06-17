@@ -20,7 +20,9 @@ class RecordTabView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final records = ref.watch(
-      recordsProvider({'vehicleId': vehicleId, 'type': recordType}),
+      recordsProvider(
+        RecordsProviderArgs(vehicleId: vehicleId, type: recordType),
+      ),
     );
 
     return Scaffold(
