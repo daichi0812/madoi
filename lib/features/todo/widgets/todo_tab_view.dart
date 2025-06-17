@@ -39,6 +39,8 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
 
   @override
   Widget build(BuildContext context) {
+    // アクティブなワークスペースIDも取得
+    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
     final todos = ref.watch(todosProvider(widget.vehicleId));
 
     return Column(
@@ -60,12 +62,16 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
                   ),
                   value: todo.isCompleted,
                   onChanged: (value) {
-                    ref
-                        .read(todoControllerProvider)
-                        .toggleTodoStatus(
-                          todoId: todo.id,
-                          currentStatus: todo.isCompleted,
-                        );
+                    if (activeWorkspaceId != null) {
+                      ref
+                          .read(todoControllerProvider)
+                          .toggleTodoStatus(
+                            workspaceId: activeWorkspaceId,
+                            vehicleId: widget.vehicleId,
+                            todoId: todo.id,
+                            currentStatus: todo.isCompleted,
+                          );
+                    }
                   },
                 );
               },

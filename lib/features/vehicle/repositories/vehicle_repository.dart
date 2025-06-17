@@ -8,11 +8,12 @@ class VehicleRepository {
   VehicleRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // ワークスペースIDに紐づく車両一覧をStreamで取得
+  // workspaceIdを親ドキュメントのパスとして使用
   Stream<List<VehicleModel>> getVehiclesStream(String workspaceId) {
     return _firestore
-        .collection('vehicles')
-        .where('workspaceId', isEqualTo: workspaceId)
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection("vehicles")
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
@@ -28,7 +29,11 @@ class VehicleRepository {
     required String nickname,
     required String workspaceId,
   }) async {
-    final newVehicleRef = _firestore.collection('vehicles').doc();
+    final newVehicleRef = _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc();
     final newVehicle = VehicleModel(
       id: newVehicleRef.id,
       name: name,
@@ -40,14 +45,18 @@ class VehicleRepository {
   }
 
   // 車両IDをもとに単一の車両データをStreamで取得
-  Stream<VehicleModel?> getVehicleStream(String vehicleId) {
-    return _firestore.collection("vehicles").doc(vehicleId).snapshots().map((
-      snapshot,
-    ) {
-      if (snapshot.exists && snapshot.data() != null) {
-        return VehicleModel.fromMap(snapshot.data()!);
-      }
-      return null;
-    });
+  Stream<VehicleModel?> getVehicleStream(String workspaceId, String vehicleId) {
+    return _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists && snapshot.data() != null) {
+            return VehicleModel.fromMap(snapshot.data()!);
+          }
+          return null;
+        });
   }
 }

@@ -27,7 +27,7 @@ final todosProvider = StreamProvider.family<List<TodoModel>, String>((
 
   return ref
       .watch(todoRepositoryProvider)
-      .getTodosStream(vehicleId, activeWorkspaceId);
+      .getTodosStream(vehicleId: vehicleId, workspaceId: activeWorkspaceId);
 });
 
 class TodoController {
@@ -48,10 +48,14 @@ class TodoController {
   }
 
   Future<void> toggleTodoStatus({
+    required String workspaceId,
+    required String vehicleId,
     required String todoId,
     required bool currentStatus,
   }) async {
     await _todoRepository.toggleTodoStatus(
+      workspaceId: workspaceId,
+      vehicleId: vehicleId,
       todoId: todoId,
       currentStatus: currentStatus,
     );

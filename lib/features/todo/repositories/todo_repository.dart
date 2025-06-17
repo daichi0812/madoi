@@ -8,13 +8,18 @@ class TodoRepository {
   TodoRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // 車両IDに紐づくToDo一覧をStreamで取得、vehicleId, workspaceIdどちらでも絞り込み可能
-  Stream<List<TodoModel>> getTodosStream(String vehicleId, String workspaceId) {
+  // サブコレクションのパスを指定
+  Stream<List<TodoModel>> getTodosStream({
+    required String workspaceId,
+    required String vehicleId,
+  }) {
     return _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
         .collection('todos')
-        .where('workspaceId', isEqualTo: workspaceId)
-        .where('vehicleId', isEqualTo: vehicleId)
-        .orderBy('createdAt', descending: false) // 作成順に並べる
+        .orderBy('createdAt', descending: true) // 作成順と逆に並べる
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
@@ -29,7 +34,13 @@ class TodoRepository {
     required String vehicleId,
     required String workspaceId,
   }) async {
-    final newTodoRef = _firestore.collection('todos').doc();
+    final newTodoRef = _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
+        .collection('todos')
+        .doc();
     final newTodo = TodoModel(
       id: newTodoRef.id,
       content: content,
@@ -43,11 +54,18 @@ class TodoRepository {
 
   // ToDoの完了状態を切り替える
   Future<void> toggleTodoStatus({
+    required String workspaceId,
+    required String vehicleId,
     required String todoId,
     required bool currentStatus,
   }) async {
-    await _firestore.collection('todos').doc(todoId).update({
-      'isCompleted': !currentStatus,
-    });
+    await _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
+        .collection('todos')
+        .doc(todoId)
+        .update({'isCompleted': !currentStatus});
   }
 }

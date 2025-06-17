@@ -22,12 +22,18 @@ final vehiclesProvider = StreamProvider<List<VehicleModel>>((ref) {
 });
 
 // IDを引数に取り、単一の車両データを取得するProvider.family
-final vehicleDetailProvider = StreamProvider.family<VehicleModel?, String>((
-  ref,
-  vehicleId,
-) {
-  return ref.watch(vehicleRepositoryProvider).getVehicleStream(vehicleId);
-});
+final vehicleDetailProvider =
+    StreamProvider.family<VehicleModel?, Map<String, String>>((ref, ids) {
+      final workspaceId = ids["workspaceId"];
+      final vehicleId = ids["vehicleId"];
+
+      if (workspaceId == null || vehicleId == null) {
+        return Stream.value(null);
+      }
+      return ref
+          .watch(vehicleRepositoryProvider)
+          .getVehicleStream(workspaceId, vehicleId);
+    });
 
 // Controller Provider
 final vehicleControllerProvider =

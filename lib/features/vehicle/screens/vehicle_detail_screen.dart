@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
 import 'package:madoi/features/todo/widgets/todo_tab_view.dart';
 import 'package:madoi/features/record/models/record_model.dart';
@@ -13,8 +14,16 @@ class VehicleDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // vehicleDetailProviderを呼び出し
-    final vehicleData = ref.watch(vehicleDetailProvider(vehicleId));
+    // アクティブなワークスペースのIDを取得
+    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+
+    // ProviderにMap形式でIDを渡す
+    final vehicleData = ref.watch(
+      vehicleDetailProvider({
+        'workspaceId': activeWorkspaceId ?? '',
+        'vehicleId': vehicleId,
+      }),
+    );
 
     // TabControllerを使ってタブ付きの画面を簡単に作成
     return DefaultTabController(
