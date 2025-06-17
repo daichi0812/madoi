@@ -64,7 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '326840974680',
     projectId: 'madoi-70741',
     storageBucket: 'madoi-70741.firebasestorage.app',
-    iosClientId: '326840974680-01gn12q9f0alnb7hd92etqc687a7bi1l.apps.googleusercontent.com',
+    iosClientId:
+        '326840974680-01gn12q9f0alnb7hd92etqc687a7bi1l.apps.googleusercontent.com',
     iosBundleId: 'com.example.madoi',
   );
 
@@ -74,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '326840974680',
     projectId: 'madoi-70741',
     storageBucket: 'madoi-70741.firebasestorage.app',
-    iosClientId: '326840974680-01gn12q9f0alnb7hd92etqc687a7bi1l.apps.googleusercontent.com',
+    iosClientId:
+        '326840974680-01gn12q9f0alnb7hd92etqc687a7bi1l.apps.googleusercontent.com',
     iosBundleId: 'com.example.madoi',
   );
 
