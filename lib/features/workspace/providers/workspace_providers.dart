@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/workspace/repositories/workspace_repository.dart';
+import 'package:madoi/features/workspace/models/workspace_model.dart';
 
 // --- Repository Provider ---
 final workspaceRepositoryProvider = Provider<WorkspaceRepository>((ref) {
@@ -18,6 +19,19 @@ final workspaceControllerProvider =
         ref: ref,
       );
     });
+
+// アクティブなワークスペースの情報を取得するProvider
+final activeWorkspaceProvider = StreamProvider<WorkspaceModel?>((ref) {
+  final userData = ref.watch(currentUserDataProvider).value;
+  if (userData == null || userData.memberOfWorkspaces.isEmpty) {
+    return Stream.value(null);
+  }
+  // とりあえず最初のワークスペースをアクティブとする
+  final activeWorkspaceId = userData.memberOfWorkspaces[0];
+  return ref
+      .watch(workspaceRepositoryProvider)
+      .getWorkspaceStream(activeWorkspaceId);
+});
 
 // 状態としてローディング中(true)か否(false)かを持つStateNotifier
 class WorkspaceController extends StateNotifier<bool> {
@@ -46,5 +60,14 @@ class WorkspaceController extends StateNotifier<bool> {
       // finalyブロックで必ずローディングを終了させる
       state = false;
     }
+  }
+
+  Future<void> joinWorkspace(String workspaceId) async {
+    state = true;
+    final user = _ref.read(authStateProvider).value;
+    if (user != null) {
+      await _workspaceRepository.joinWorkspace(workspaceId, user.uid);
+    }
+    state = false;
   }
 }

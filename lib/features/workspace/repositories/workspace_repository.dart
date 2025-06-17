@@ -34,4 +34,38 @@ class WorkspaceRepository {
       });
     });
   }
+
+  // ワークスペースIDを基にFirestoreからワークスペースドキュメントをStreamで取得
+  Stream<WorkspaceModel?> getWorkspaceStream(String workspaceId) {
+    return _firestore.collection('workspaces').doc(workspaceId).snapshots().map(
+      (snapshot) {
+        if (snapshot.exists && snapshot.data() != null) {
+          return WorkspaceModel.fromMap(snapshot.data()!);
+        }
+        return null;
+      },
+    );
+  }
+
+  // ワークスペースに参加するメソッド
+  Future<void> joinWorkspace(String workspaceId, String userId) async {
+    await _firestore.runTransaction((transaction) async {
+      final workspaceRef = _firestore.collection('workspaces').doc(workspaceId);
+      final userRef = _firestore.collection('users').doc(userId);
+
+      // ワークスペースが存在するか確認
+      final workspaceDoc = await transaction.get(workspaceRef);
+      if (!workspaceDoc.exists) {
+        throw Exception('無効な招待コードです。');
+      }
+
+      // ユーザーとワークスペースのドキュメントを更新
+      transaction.update(userRef, {
+        'memberOfWorkspaces': FieldValue.arrayUnion([workspaceId]),
+      });
+      transaction.update(workspaceRef, {
+        'members': FieldValue.arrayUnion([userId]),
+      });
+    });
+  }
 }

@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/todo/screens/todo_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
+import 'package:madoi/features/settings/screens/settings_screen.dart';
+import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
 // MainScreenをStatefulWidgetにすることで、選択中のタブの状態を管理
 class MainScreen extends ConsumerStatefulWidget {
@@ -24,6 +26,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   final List<Widget> _pages = [
     const VehicleScreen(), // 0番目のタブ
     const TodoScreen(), // 1番目のタブ
+    const SettingsScreen(),
     // 今後、書類管理やチャット画面などを追加していく
   ];
 
@@ -83,6 +86,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 icon: Icon(Icons.checklist),
                 label: 'ToDo',
               ),
+              BottomNavigationBarItem(icon: Icon(Icons.settings), label: '設定'),
             ],
           ),
         );
@@ -122,13 +126,58 @@ class NoWorkspaceScreen extends StatelessWidget {
             const SizedBox(height: 20),
             OutlinedButton(
               onPressed: () {
-                // TODO: 招待コード入力画面に遷移
+                // 招待コード入力ダイアログを表示
+                showDialog(
+                  context: context,
+                  builder: (context) => const JoinWorkspaceDialog(),
+                );
               },
               child: const Text('招待コードで参加'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ★ ファイルの下部にダイアログのWidgetを追加
+class JoinWorkspaceDialog extends ConsumerStatefulWidget {
+  const JoinWorkspaceDialog({super.key});
+
+  @override
+  ConsumerState<JoinWorkspaceDialog> createState() =>
+      _JoinWorkspaceDialogState();
+}
+
+class _JoinWorkspaceDialogState extends ConsumerState<JoinWorkspaceDialog> {
+  final TextEditingController _codeController = TextEditingController();
+
+  void joinWorkspace() async {
+    final code = _codeController.text.trim();
+    if (code.isNotEmpty) {
+      await ref.read(workspaceControllerProvider.notifier).joinWorkspace(code);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('ワークスペースに参加'),
+      content: TextField(
+        controller: _codeController,
+        decoration: const InputDecoration(labelText: '招待コード'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('キャンセル'),
+        ),
+        ElevatedButton(onPressed: joinWorkspace, child: const Text('参加')),
+      ],
     );
   }
 }
