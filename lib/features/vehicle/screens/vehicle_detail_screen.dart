@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
 import 'package:madoi/features/todo/widgets/todo_tab_view.dart';
+import 'package:madoi/features/record/models/record_model.dart';
+import 'package:madoi/features/record/widgets/record_tab_view.dart';
 
 class VehicleDetailScreen extends ConsumerWidget {
   final String vehicleId;
@@ -36,8 +38,13 @@ class VehicleDetailScreen extends ConsumerWidget {
           children: [
             // 各タブに表示する仮のコンテンツ
             TodoTabView(vehicleId: vehicleId),
-            Center(child: Text('整備記録がここに表示されます')),
-            Center(child: Text('セッティング記録がここに表示されます')),
+            // 整備記録タブ
+            RecordTabView(
+              vehicleId: vehicleId,
+              recordType: RecordType.maintenance,
+            ),
+            // セッティング記録タブ
+            RecordTabView(vehicleId: vehicleId, recordType: RecordType.setting),
           ],
         ),
       ),

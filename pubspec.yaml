@@ -27,6 +27,9 @@ dependencies:
   # 画面遷移（go_router）
   go_router: ^15.2.0
 
+  # 日付フォーマット
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
