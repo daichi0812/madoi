@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
+import 'package:madoi/features/todo/widgets/todo_tab_view.dart';
 
 class VehicleDetailScreen extends ConsumerWidget {
   final String vehicleId;
@@ -31,10 +32,10 @@ class VehicleDetailScreen extends ConsumerWidget {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             // 各タブに表示する仮のコンテンツ
-            Center(child: Text('ToDoリストがここに表示されます')),
+            TodoTabView(vehicleId: vehicleId),
             Center(child: Text('整備記録がここに表示されます')),
             Center(child: Text('セッティング記録がここに表示されます')),
           ],
