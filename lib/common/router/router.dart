@@ -3,11 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/auth/screens/login_screen.dart';
 import 'package:madoi/features/home/screens/main_screen.dart';
 import "package:madoi/features/workspace/screens/create_workspace_screen.dart";
 import 'package:madoi/features/vehicle/screens/vehicle_detail_screen.dart';
+import 'package:madoi/features/record/models/record_model.dart';
+import 'package:madoi/features/record/screens/add_edit_record_screen.dart';
+import 'package:madoi/features/record/screens/record_detail_screen.dart';
 
 // go_routerのインスタンスをシングルトンで提供するProvider
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -39,6 +43,27 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           // パスからvehicleIdを取得
           final vehicleId = state.pathParameters['vehicleId']!;
           return VehicleDetailScreen(vehicleId: vehicleId);
+        },
+      ),
+      GoRoute(
+        path: '/vehicle/:vehicleId/add-record/:recordType',
+        name: 'add-record',
+        builder: (context, state) {
+          final vehicleId = state.pathParameters['vehicleId']!;
+          final recordTypeString = state.pathParameters['recordType']!;
+          final recordType = RecordType.values.byName(recordTypeString);
+          return AddEditRecordScreen(
+            vehicleId: vehicleId,
+            recordType: recordType,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/record/:recordId',
+        name: 'record-detail',
+        builder: (context, state) {
+          final recordId = state.pathParameters['recordId']!;
+          return RecordDetailScreen(recordId: recordId);
         },
       ),
     ],

@@ -30,6 +30,9 @@ dependencies:
   # 日付フォーマット
   intl: ^0.20.2
 
+  # マークダウン
+  flutter_markdown: ^0.7.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

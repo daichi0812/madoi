@@ -27,4 +27,30 @@ class RecordRepository {
               .toList(),
         );
   }
+
+  // 新しい記録を追加するメソッドを追加
+  Future<void> addRecord({
+    required String content,
+    required RecordType type,
+    required String vehicleId,
+    required String workspaceId,
+  }) async {
+    final newRecordRef = _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('records')
+        .doc();
+
+    final newRecord = RecordModel(
+      id: newRecordRef.id,
+      content: content,
+      type: type,
+      recordDate: Timestamp.now(),
+      vehicleId: vehicleId,
+      workspaceId: workspaceId,
+    );
+    await newRecordRef.set(newRecord.toMap());
+  }
 }

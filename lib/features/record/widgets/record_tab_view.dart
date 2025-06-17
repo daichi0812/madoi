@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:madoi/features/record/models/record_model.dart';
 import 'package:madoi/features/record/providers/record_providers.dart';
 
@@ -41,7 +43,7 @@ class RecordTabView extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 onTap: () {
-                  // TODO: 記録詳細画面へ遷移
+                  context.go('/record/${record.id}');
                 },
               );
             },
@@ -52,7 +54,8 @@ class RecordTabView extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: 記録追加画面へ遷移
+          // 記録追加画面へ遷移
+          context.go('/vehicle/$vehicleId/add-record/${recordType.name}');
         },
         child: const Icon(Icons.add),
       ),
