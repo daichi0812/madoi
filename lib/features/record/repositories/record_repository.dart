@@ -30,6 +30,28 @@ class RecordRepository {
         );
   }
 
+  // ★ 単一の記録データをStreamで取得するメソッドを追加
+  Stream<RecordModel?> getRecordStream({
+    required String workspaceId,
+    required String vehicleId,
+    required String recordId,
+  }) {
+    return _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('records')
+        .doc(recordId)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists && snapshot.data() != null) {
+            return RecordModel.fromMap(snapshot.data()!);
+          }
+          return null;
+        });
+  }
+
   // 新しい記録を追加するメソッドを追加
   Future<void> addRecord({
     required String content,

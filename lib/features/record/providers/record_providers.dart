@@ -8,7 +8,7 @@ import 'package:madoi/features/record/models/record_model.dart';
 import 'package:madoi/features/record/repositories/record_repository.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
-// ★★★ 1. 引数用の専用クラスを作成 ★★★
+//　1. 引数用の専用クラスを作成
 class RecordsProviderArgs extends Equatable {
   final String vehicleId;
   final RecordType type;
@@ -19,13 +19,13 @@ class RecordsProviderArgs extends Equatable {
   List<Object?> get props => [vehicleId, type];
 }
 
-// Repository (変更なし)
+// Repository
 final recordRepositoryProvider = Provider((ref) => RecordRepository());
 
-// ★★★ 2. recordsProviderの定義を修正 ★★★
+// 2. recordsProviderの定義
 final recordsProvider =
     StreamProvider.family<List<RecordModel>, RecordsProviderArgs>((ref, args) {
-      // Map<String, dynamic> ではなく RecordsProviderArgs を使う
+      // RecordsProviderArgs を使う
       final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
 
       if (activeWorkspaceId == null) {
@@ -38,6 +38,26 @@ final recordsProvider =
             vehicleId: args.vehicleId, // args.vehicleId でアクセス
             type: args.type, // args.type でアクセス
             workspaceId: activeWorkspaceId,
+          );
+    });
+
+//  単一の記録を取得するためのProvider.familyを追加
+final recordDetailProvider =
+    StreamProvider.family<RecordModel?, Map<String, String>>((ref, ids) {
+      final workspaceId = ids['workspaceId'];
+      final vehicleId = ids['vehicleId'];
+      final recordId = ids['recordId'];
+
+      if (workspaceId == null || vehicleId == null || recordId == null) {
+        return Stream.value(null);
+      }
+
+      return ref
+          .watch(recordRepositoryProvider)
+          .getRecordStream(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+            recordId: recordId,
           );
     });
 

@@ -59,11 +59,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/record/:recordId',
+        // パスをより具体的にする
+        path: '/workspace/:workspaceId/vehicle/:vehicleId/record/:recordId',
         name: 'record-detail',
         builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final vehicleId = state.pathParameters['vehicleId']!;
           final recordId = state.pathParameters['recordId']!;
-          return RecordDetailScreen(recordId: recordId);
+          return RecordDetailScreen(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+            recordId: recordId,
+          );
         },
       ),
     ],

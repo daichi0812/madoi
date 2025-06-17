@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:madoi/features/record/models/record_model.dart';
 import 'package:madoi/features/record/providers/record_providers.dart';
+import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
 class RecordTabView extends ConsumerWidget {
   final String vehicleId;
@@ -19,6 +20,8 @@ class RecordTabView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 現在のワークスペースIDを取得
+    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
     final records = ref.watch(
       recordsProvider(
         RecordsProviderArgs(vehicleId: vehicleId, type: recordType),
@@ -45,7 +48,13 @@ class RecordTabView extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 onTap: () {
-                  context.go('/record/${record.id}');
+                  // nullチェックを追加
+                  if (activeWorkspaceId != null) {
+                    // 新しいルートに、全てのIDを渡して遷移
+                    context.go(
+                      '/workspace/$activeWorkspaceId/vehicle/$vehicleId/record/${record.id}',
+                    );
+                  }
                 },
               );
             },
