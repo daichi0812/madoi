@@ -13,8 +13,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # ------------------- ここからが修正箇所 ------------------- #
+      
+      # 1. Flutter環境をセットアップする
+      - uses: subosito/flutter-action@v2
+        with:
+          # あなたがローカルで使っているFlutterのバージョンを指定するのがおすすめです
+          # ターミナルで flutter --version を実行して確認できます
+          flutter-version: '3.22.0' 
+
+      # 2. パッケージをインストールする
       - run: flutter pub get
+
+      # 3. Flutterウェブアプリをビルドする
       - run: flutter build web
+
+      # ------------------- ここまでが修正箇所 ------------------- #
+      
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
