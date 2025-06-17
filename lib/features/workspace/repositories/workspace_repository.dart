@@ -49,23 +49,22 @@ class WorkspaceRepository {
 
   // ワークスペースに参加するメソッド
   Future<void> joinWorkspace(String workspaceId, String userId) async {
-    await _firestore.runTransaction((transaction) async {
-      final workspaceRef = _firestore.collection('workspaces').doc(workspaceId);
-      final userRef = _firestore.collection('users').doc(userId);
+    // 参加したいワークスペースのドキュメントが存在するか、まず確認する
+    final workspaceRef = _firestore.collection('workspaces').doc(workspaceId);
+    final workspaceDoc = await workspaceRef.get();
+    if (!workspaceDoc.exists) {
+      throw Exception('無効な招待コードです。');
+    }
 
-      // ワークスペースが存在するか確認
-      final workspaceDoc = await transaction.get(workspaceRef);
-      if (!workspaceDoc.exists) {
-        throw Exception('無効な招待コードです。');
-      }
+    // 自分のユーザードキュメントに、ワークスペースIDを追加する
+    final userRef = _firestore.collection('users').doc(userId);
+    await userRef.update({
+      'memberOfWorkspaces': FieldValue.arrayUnion([workspaceId]),
+    });
 
-      // ユーザーとワークスペースのドキュメントを更新
-      transaction.update(userRef, {
-        'memberOfWorkspaces': FieldValue.arrayUnion([workspaceId]),
-      });
-      transaction.update(workspaceRef, {
-        'members': FieldValue.arrayUnion([userId]),
-      });
+    // ワークスペースのドキュメントに、自分のIDを追加する
+    await workspaceRef.update({
+      'members': FieldValue.arrayUnion([userId]),
     });
   }
 }
