@@ -1,7 +1,5 @@
 // lib/common/models/user_model.dart
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   final String uid;
   final String name;

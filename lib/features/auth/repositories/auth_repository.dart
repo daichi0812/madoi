@@ -16,7 +16,13 @@ class AuthRepository {
     GoogleSignIn? googleSignIn,
     FirebaseFirestore? firestore,
   }) : _auth = auth ?? FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn(),
+       _googleSignIn =
+           googleSignIn ??
+           GoogleSignIn(
+             // Google Cloudコンソールで取得したWebクライアントIDを指定
+             clientId:
+                 '326840974680-nvkn5e9spdirs699rb72pk1u80d36qs0.apps.googleusercontent.com',
+           ),
        _firestore = firestore ?? FirebaseFirestore.instance;
 
   // ログイン状態を監視するStream
