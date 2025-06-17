@@ -34,6 +34,7 @@ class LoginScreen extends ConsumerWidget {
                   await ref.read(loginProvider).signInWithGoogle();
                   // 成功した場合、次のステップの画面振り分けによって自動でメイン画面に遷移します。
                 } catch (e) {
+                  if (!context.mounted) return;
                   // エラーが発生した場合の処理
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('ログインに失敗しました: ${e.toString()}')),

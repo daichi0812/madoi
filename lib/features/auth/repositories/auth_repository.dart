@@ -1,5 +1,6 @@
 // auth_repository.dart
 // Firebase Authenticationとの実際の通信処理を担当するクラス
+import "dart:developer";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:google_sign_in/google_sign_in.dart";
 
@@ -38,7 +39,7 @@ class AuthRepository {
       return await _auth.signInWithCredential(credential);
     } catch (e) {
       // エラー処理
-      print("Googleサインインエラー: ${e.toString()}");
+      log("Googleサインインエラー: ${e.toString()}");
       rethrow;
     }
   }
