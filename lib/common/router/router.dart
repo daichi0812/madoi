@@ -46,13 +46,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/vehicle/:vehicleId/add-record/:recordType',
+        path:
+            '/workspace/:workspaceId/vehicle/:vehicleId/add-record/:recordType',
         name: 'add-record',
         builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId'];
           final vehicleId = state.pathParameters['vehicleId']!;
           final recordTypeString = state.pathParameters['recordType']!;
           final recordType = RecordType.values.byName(recordTypeString);
           return AddEditRecordScreen(
+            workspaceId: workspaceId!,
             vehicleId: vehicleId,
             recordType: recordType,
           );
@@ -70,6 +73,23 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             workspaceId: workspaceId,
             vehicleId: vehicleId,
             recordId: recordId,
+          );
+        },
+      ),
+      GoRoute(
+        path:
+            '/workspace/:workspaceId/vehicle/:vehicleId/record/:recordId/edit',
+        name: 'edit-record',
+        builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final vehicleId = state.pathParameters['vehicleId']!;
+          final recordId = state.pathParameters['recordId']!;
+
+          // AddEditRecordScreenに編集対象のrecordIdを渡す
+          return AddEditRecordScreen(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+            recordId: recordId, // ★ 編集モードであることを示すためにrecordIdを渡す
           );
         },
       ),

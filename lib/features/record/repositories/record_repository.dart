@@ -77,4 +77,21 @@ class RecordRepository {
     );
     await newRecordRef.set(newRecord.toMap());
   }
+
+  // 既存の記録を更新するメソッドを追加
+  Future<void> updateRecord({
+    required String content,
+    required String workspaceId,
+    required String vehicleId,
+    required String recordId,
+  }) async {
+    await _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('records')
+        .doc(recordId)
+        .update({'content': content});
+  }
 }

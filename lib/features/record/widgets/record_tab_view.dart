@@ -51,12 +51,12 @@ class RecordTabView extends ConsumerWidget {
                   // nullチェックを追加
                   if (activeWorkspaceId != null) {
                     // 新しいルートに、全てのIDを渡して遷移
+                    // context.push(
+                    //   '/workspace/$activeWorkspaceId/vehicle/$vehicleId/record/${record.id}',
+                    // );
                     context.push(
                       '/workspace/$activeWorkspaceId/vehicle/$vehicleId/record/${record.id}',
                     );
-                    // context.go(
-                    //   '/workspace/$activeWorkspaceId/vehicle/$vehicleId/record/${record.id}',
-                    // );
                   }
                 },
               );
@@ -69,8 +69,12 @@ class RecordTabView extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // 記録追加画面へ遷移
-          context.push('/vehicle/$vehicleId/add-record/${recordType.name}');
-          // context.go('/vehicle/$vehicleId/add-record/${recordType.name}');
+          context.push(
+            '/workspace/$activeWorkspaceId/vehicle/$vehicleId/add-record/${recordType.name}',
+          );
+          // context.go(
+          //   '/workspace/$activeWorkspaceId/vehicle/$vehicleId/add-record/${recordType.name}',
+          // );
         },
         child: const Icon(Icons.add),
       ),

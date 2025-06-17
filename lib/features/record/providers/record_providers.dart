@@ -111,4 +111,32 @@ class RecordController extends StateNotifier<bool> {
       state = false;
     }
   }
+
+  // 記録を更新するメソッド
+  Future<void> updateRecord({
+    required BuildContext context,
+    required String recordId,
+    required String content,
+    required String workspaceId,
+    required String vehicleId,
+  }) async {
+    state = true;
+    try {
+      await _recordRepository.updateRecord(
+        content: content,
+        workspaceId: workspaceId,
+        vehicleId: vehicleId,
+        recordId: recordId,
+      );
+    } catch (e) {
+      log('記録更新エラー: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('エラーが発生しました: ${e.toString()}')));
+      }
+    } finally {
+      state = false;
+    }
+  }
 }

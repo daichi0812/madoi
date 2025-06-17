@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:madoi/features/record/providers/record_providers.dart';
 
@@ -41,6 +42,18 @@ class RecordDetailScreen extends ConsumerWidget {
                 ).format(recordData.value!.recordDate.toDate())
               : '詳細',
         ),
+        actions: [
+          // 編集ボタン
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              // 編集画面へ遷移
+              context.go(
+                '/workspace/$workspaceId/vehicle/$vehicleId/record/$recordId/edit',
+              );
+            },
+          ),
+        ],
       ),
       // .whenを使って、データの状態に応じて表示を切り替える
       body: recordData.when(
