@@ -19,7 +19,7 @@ jobs:
         with:
           # あなたがローカルで使っているFlutterのバージョンを指定するのがおすすめです
           # ターミナルで flutter --version を実行して確認できます
-          flutter-version: '3.22.0' 
+          flutter-version: '3.32.2' 
 
       # 2. パッケージをインストールする
       - run: flutter pub get
