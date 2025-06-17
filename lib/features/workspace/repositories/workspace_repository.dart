@@ -1,5 +1,4 @@
 // lib/features/workspace/repositories/workspace_repository.dart
-import 'dart:developer'; // logを使うためにインポート
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:madoi/features/workspace/models/workspace_model.dart';
 
@@ -11,30 +10,28 @@ class WorkspaceRepository {
 
   // ワークスペースを作成するメソッド
   Future<void> createWorkspace(String name, String ownerId) async {
-    // ★★★ デバッグのため、一時的にトランザクションを使わない形に変更 ★★★
-    try {
-      // 1. 新しいワークスペースのドキュメント参照を作成
+    // トランザクションを使い、複数の書き込み処理を安全に行う
+    await _firestore.runTransaction((transaction) async {
+      // 1. 新しいワークスペースのドキュメント参照を作成 (IDは自動生成)
       final newWorkspaceRef = _firestore.collection('workspaces').doc();
+
+      // 2. 作成するワークスペースのモデルインスタンスを生成
       final newWorkspace = WorkspaceModel(
         id: newWorkspaceRef.id,
         name: name,
         ownerId: ownerId,
-        members: [ownerId],
+        members: [ownerId], // 作成者を最初のメンバーとして追加
         createdAt: Timestamp.now(),
       );
-      // 新しいワークスペースをセット
-      await newWorkspaceRef.set(newWorkspace.toMap());
-      log('ワークスペースの作成に成功しました。');
 
-      // 2. ユーザーのドキュメントを更新
+      // 3. ユーザーのドキュメント参照を取得
       final userRef = _firestore.collection('users').doc(ownerId);
-      await userRef.update({
+
+      // 4. トランザクション内で書き込みを実行
+      transaction.set(newWorkspaceRef, newWorkspace.toMap());
+      transaction.update(userRef, {
         'memberOfWorkspaces': FieldValue.arrayUnion([newWorkspace.id]),
       });
-      log('ユーザー情報の更新に成功しました。');
-    } catch (e) {
-      log('デバッグ中のエラー: $e');
-      rethrow; // エラーを再スローしてコントローラーに伝える
-    }
+    });
   }
 }
