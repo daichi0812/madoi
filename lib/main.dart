@@ -32,7 +32,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Madoi',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'NotoSansJP'),
       routerConfig: router,
     );
   }
