@@ -51,13 +51,13 @@ class TodoController {
     required String workspaceId,
     required String vehicleId,
     required String todoId,
-    required bool currentStatus,
+    required bool isDone,
   }) async {
     await _todoRepository.toggleTodoStatus(
       workspaceId: workspaceId,
       vehicleId: vehicleId,
       todoId: todoId,
-      currentStatus: currentStatus,
+      isDone: isDone,
     );
   }
 }

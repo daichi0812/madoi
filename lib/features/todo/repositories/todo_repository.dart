@@ -44,7 +44,7 @@ class TodoRepository {
     final newTodo = TodoModel(
       id: newTodoRef.id,
       content: content,
-      isCompleted: false,
+      isDone: false,
       createdAt: Timestamp.now(),
       vehicleId: vehicleId,
       workspaceId: workspaceId,
@@ -57,15 +57,20 @@ class TodoRepository {
     required String workspaceId,
     required String vehicleId,
     required String todoId,
-    required bool currentStatus,
+    required bool isDone,
   }) async {
-    await _firestore
+    final todoRef = _firestore
         .collection("workspaces")
         .doc(workspaceId)
         .collection("vehicles")
         .doc(vehicleId)
         .collection('todos')
-        .doc(todoId)
-        .update({'isCompleted': !currentStatus});
+        .doc(todoId);
+
+    // 完了状態に応じてcompletedAtを更新
+    await todoRef.update({
+      'isDone': isDone,
+      'completedAt': isDone ? Timestamp.now() : null,
+    });
   }
 }

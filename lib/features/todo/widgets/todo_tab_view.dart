@@ -1,6 +1,8 @@
 // lib/features/todo/widgets/todo_tab_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
 import 'package:madoi/features/todo/providers/todo_providers.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
@@ -13,22 +15,24 @@ class TodoTabView extends ConsumerStatefulWidget {
 }
 
 class _TodoTabViewState extends ConsumerState<TodoTabView> {
-  final TextEditingController _todoContentController = TextEditingController();
+  final _todoContentController = TextEditingController();
 
   void _addTodo() {
     final content = _todoContentController.text.trim();
-    final workspaceId = ref.read(activeWorkspaceProvider).value?.id;
+    if (content.isEmpty) return;
 
-    if (content.isNotEmpty && workspaceId != null) {
-      ref
-          .read(todoControllerProvider)
-          .addTodo(
-            content: content,
-            vehicleId: widget.vehicleId,
-            workspaceId: workspaceId,
-          );
-      _todoContentController.clear();
-    }
+    final workspaceId = ref.read(activeWorkspaceProvider).value?.id;
+    if (workspaceId == null) return;
+
+    ref
+        .read(todoControllerProvider)
+        .addTodo(
+          content: content,
+          vehicleId: widget.vehicleId,
+          workspaceId: workspaceId,
+        );
+    _todoContentController.clear();
+    FocusScope.of(context).unfocus(); // キーボードを閉じる
   }
 
   @override
@@ -39,74 +43,114 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
 
   @override
   Widget build(BuildContext context) {
-    // アクティブなワークスペースIDも取得
-    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
-    final todos = ref.watch(todosProvider(widget.vehicleId));
+    final todosAsyncValue = ref.watch(todosProvider(widget.vehicleId));
 
-    return Column(
-      children: [
-        Expanded(
-          child: todos.when(
-            data: (todoList) => ListView.builder(
-              itemCount: todoList.length,
-              itemBuilder: (context, index) {
-                final todo = todoList[index];
-                return CheckboxListTile(
-                  title: Text(
-                    todo.content,
-                    style: TextStyle(
-                      decoration: todo.isCompleted
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
-                    ),
+    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+
+    return Scaffold(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _todoContentController,
+              decoration: InputDecoration(
+                hintText: '新しいToDoを追加',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addTodo,
+                ),
+              ),
+              onSubmitted: (_) => _addTodo(),
+            ),
+          ),
+          Expanded(
+            child: todosAsyncValue.when(
+              data: (todos) {
+                // 未完了タスクと完了済みタスクに振り分ける
+                final incompleteTodos = todos
+                    .where((todo) => !todo.isDone)
+                    .toList();
+                final completeTodos = todos
+                    .where((todo) => todo.isDone)
+                    .toList();
+
+                // 完了済みタスクは作成日時の降順（新しいものが上）にソート
+                completeTodos.sort(
+                  (a, b) => (b.completedAt ?? b.createdAt).compareTo(
+                    a.completedAt ?? a.createdAt,
                   ),
-                  value: todo.isCompleted,
-                  onChanged: (value) {
-                    if (activeWorkspaceId != null) {
-                      ref
-                          .read(todoControllerProvider)
-                          .toggleTodoStatus(
-                            workspaceId: activeWorkspaceId,
-                            vehicleId: widget.vehicleId,
-                            todoId: todo.id,
-                            currentStatus: todo.isCompleted,
+                );
+
+                if (todos.isEmpty) {
+                  return const Center(child: Text('ToDoはありません'));
+                }
+
+                return ListView(
+                  children: [
+                    // 未完了タスクのリスト
+                    ...incompleteTodos.map((todo) {
+                      return CheckboxListTile(
+                        title: Text(todo.content),
+                        value: todo.isDone,
+                        onChanged: (isDone) {
+                          // workspaceIdのnullチェック
+                          if (activeWorkspaceId != null && isDone != null) {
+                            ref
+                                .read(todoControllerProvider)
+                                .toggleTodoStatus(
+                                  workspaceId: activeWorkspaceId,
+                                  vehicleId: widget.vehicleId,
+                                  todoId: todo.id,
+                                  isDone: isDone,
+                                );
+                          }
+                        },
+                      );
+                    }),
+                    // 完了済みタスクが1件以上あればExpansionTileを表示
+                    if (completeTodos.isNotEmpty)
+                      ExpansionTile(
+                        title: Text('完了 (${completeTodos.length})'),
+                        children: completeTodos.map((todo) {
+                          return CheckboxListTile(
+                            title: Text(
+                              todo.content,
+                              style: const TextStyle(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            subtitle: Text(
+                              // 完了日を表示
+                              '完了: ${DateFormat('yyyy/MM/dd').format((todo.completedAt ?? todo.createdAt).toDate())}',
+                            ),
+                            value: todo.isDone,
+                            onChanged: (isDone) {
+                              // workspaceIdのnullチェック
+                              if (activeWorkspaceId != null && isDone != null) {
+                                ref
+                                    .read(todoControllerProvider)
+                                    .toggleTodoStatus(
+                                      workspaceId: activeWorkspaceId,
+                                      vehicleId: widget.vehicleId,
+                                      todoId: todo.id,
+                                      isDone: isDone,
+                                    );
+                              }
+                            },
                           );
-                    }
-                  },
+                        }).toList(),
+                      ),
+                  ],
                 );
               },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('エラー: $err')),
             ),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text('エラー: $err')),
           ),
-        ),
-        // ToDo入力欄
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _todoContentController,
-                  decoration: const InputDecoration(
-                    labelText: '新しいToDoを追加',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: _addTodo,
-                style: IconButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
