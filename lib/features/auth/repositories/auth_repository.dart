@@ -12,7 +12,7 @@ class AuthRepository {
       _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   // ログイン状態を監視するStream
-  Stream<User?> get authStateChange => _auth.authStateChanges();
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // Googleでサインイン
   Future<UserCredential> signInWithGoogle() async {
