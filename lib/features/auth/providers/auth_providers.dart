@@ -4,6 +4,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:madoi/features/auth/repositories/auth_repository.dart'; // 作成したRepositoryをインポート
+import "package:madoi/common/models/user_model.dart";
+
+// Firestoreのユーザーデータをリアルタイムで取得するStreamProvider
+final currentUserDataProvider = StreamProvider<UserModel?>((ref) {
+  // 認証状態を監視
+  final authState = ref.watch(authStateProvider);
+
+  // ログインしている場合
+  if (authState.value != null) {
+    // AuthRepositoryのgetUserDataStreamメソッドを呼び出す
+    return ref
+        .watch(authRepositoryProvider)
+        .getUserDataStream(authState.value!.uid);
+  }
+  // ログインしていない場合はnullを返す
+  return Stream.value(null);
+});
 
 // AuthRepositoryのインスタンスをシングルトンで提供するProvider
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

@@ -69,6 +69,7 @@ class AuthRepository {
             name: userCredential.user!.displayName ?? "名無しさん",
             email: userCredential.user!.email ?? "",
             profilePic: userCredential.user!.photoURL ?? "",
+            memberOfWorkspaces: [],
           );
 
           // Firestoreの"users"コレクションにユーザー情報を保存
@@ -86,5 +87,15 @@ class AuthRepository {
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
+  }
+
+  // ユーザーIDをもとにFirestoreからユーザードキュメントをStreamで取得
+  Stream<UserModel?> getUserDataStream(String uid) {
+    return _firestore.collection("users").doc(uid).snapshots().map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return UserModel.fromMap(snapshot.data()!);
+      }
+      return null;
+    });
   }
 }
