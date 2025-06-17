@@ -14,49 +14,64 @@ class VehicleDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // アクティブなワークスペースのIDを取得
-    final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+    // アクティブなワークスペースの情報を監視する
+    final activeWorkspaceAsyncValue = ref.watch(activeWorkspaceProvider);
 
-    // ProviderにMap形式でIDを渡す
-    final vehicleData = ref.watch(
-      vehicleDetailProvider({
-        'workspaceId': activeWorkspaceId ?? '',
-        'vehicleId': vehicleId,
-      }),
-    );
+    // workspaceの読み込み状態に応じてUIを切り替える
+    return activeWorkspaceAsyncValue.when(
+      data: (activeWorkspace) {
+        // ワークスペース情報がなければエラー表示
+        if (activeWorkspace == null) {
+          return const Scaffold(
+            body: Center(child: Text('アクティブなワークスペースが見つかりません。')),
+          );
+        }
 
-    // TabControllerを使ってタブ付きの画面を簡単に作成
-    return DefaultTabController(
-      length: 3, // タブの数
-      child: Scaffold(
-        appBar: AppBar(
-          title: vehicleData.when(
-            data: (vehicle) => Text(vehicle?.name ?? '詳細'),
-            loading: () => const Text('...'),
-            error: (err, stack) => const Text('エラー'),
-          ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.checklist), text: 'ToDo'),
-              Tab(icon: Icon(Icons.build), text: '整備記録'),
-              Tab(icon: Icon(Icons.tune), text: 'セッティング'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // 各タブに表示する仮のコンテンツ
-            TodoTabView(vehicleId: vehicleId),
-            // 整備記録タブ
-            RecordTabView(
-              vehicleId: vehicleId,
-              recordType: RecordType.maintenance,
+        // ★ ワークスペース情報が取得できた後で、車両詳細のProviderを呼び出す
+        final vehicleData = ref.watch(
+          vehicleDetailProvider({
+            'workspaceId': activeWorkspace.id,
+            'vehicleId': vehicleId,
+          }),
+        );
+
+        return DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            appBar: AppBar(
+              title: vehicleData.when(
+                data: (vehicle) => Text(vehicle?.name ?? '詳細'),
+                loading: () => const Text('...'),
+                error: (err, stack) => const Text('エラー'),
+              ),
+              bottom: const TabBar(
+                tabs: [
+                  Tab(icon: Icon(Icons.checklist), text: 'ToDo'),
+                  Tab(icon: Icon(Icons.build), text: '整備記録'),
+                  Tab(icon: Icon(Icons.tune), text: 'セッティング'),
+                ],
+              ),
             ),
-            // セッティング記録タブ
-            RecordTabView(vehicleId: vehicleId, recordType: RecordType.setting),
-          ],
-        ),
-      ),
+            body: TabBarView(
+              children: [
+                TodoTabView(vehicleId: vehicleId),
+                RecordTabView(
+                  vehicleId: vehicleId,
+                  recordType: RecordType.maintenance,
+                ),
+                RecordTabView(
+                  vehicleId: vehicleId,
+                  recordType: RecordType.setting,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) =>
+          Scaffold(body: Center(child: Text('エラーが発生しました: $err'))),
     );
   }
 }
