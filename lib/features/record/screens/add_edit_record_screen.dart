@@ -37,7 +37,10 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
             vehicleId: widget.vehicleId,
             workspaceId: workspaceId,
           );
-      if (mounted) context.pop();
+      if (mounted) {
+        // context.pop();
+        context.go('/vehicle/${widget.vehicleId}');
+      }
     }
   }
 
