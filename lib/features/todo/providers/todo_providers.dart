@@ -1,7 +1,9 @@
 // lib/features/todo/providers/todo_providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:madoi/features/todo/models/todo_model.dart';
 import 'package:madoi/features/todo/repositories/todo_repository.dart';
+import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
 // Repository
 final todoRepositoryProvider = Provider((ref) => TodoRepository());
@@ -16,7 +18,16 @@ final todosProvider = StreamProvider.family<List<TodoModel>, String>((
   ref,
   vehicleId,
 ) {
-  return ref.watch(todoRepositoryProvider).getTodosStream(vehicleId);
+  // アクティブなワークスペースのIDを取得
+  final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+
+  if (activeWorkspaceId == null) {
+    return Stream.value([]);
+  }
+
+  return ref
+      .watch(todoRepositoryProvider)
+      .getTodosStream(vehicleId, activeWorkspaceId);
 });
 
 class TodoController {

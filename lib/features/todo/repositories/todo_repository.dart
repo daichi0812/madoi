@@ -8,10 +8,11 @@ class TodoRepository {
   TodoRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // 車両IDに紐づくToDo一覧をStreamで取得
-  Stream<List<TodoModel>> getTodosStream(String vehicleId) {
+  // 車両IDに紐づくToDo一覧をStreamで取得、vehicleId, workspaceIdどちらでも絞り込み可能
+  Stream<List<TodoModel>> getTodosStream(String vehicleId, String workspaceId) {
     return _firestore
         .collection('todos')
+        .where('workspaceId', isEqualTo: workspaceId)
         .where('vehicleId', isEqualTo: vehicleId)
         .orderBy('createdAt', descending: false) // 作成順に並べる
         .snapshots()
