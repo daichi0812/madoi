@@ -22,11 +22,13 @@ class RecordDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Providerから単一のrecordを取得する
     final recordData = ref.watch(
-      recordDetailProvider({
-        'workspaceId': workspaceId,
-        'vehicleId': vehicleId,
-        'recordId': recordId,
-      }),
+      recordDetailProvider(
+        RecordDetailProviderArgs(
+          workspaceId: workspaceId,
+          vehicleId: vehicleId,
+          recordId: recordId,
+        ),
+      ),
     );
 
     return Scaffold(
