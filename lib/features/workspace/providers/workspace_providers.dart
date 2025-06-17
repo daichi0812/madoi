@@ -1,4 +1,5 @@
 // lib/features/workspace/providers/workspace_providers.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:developer';
 
@@ -62,12 +63,26 @@ class WorkspaceController extends StateNotifier<bool> {
     }
   }
 
-  Future<void> joinWorkspace(String workspaceId) async {
-    state = true;
+  Future<void> joinWorkspace(BuildContext context, String workspaceId) async {
+    state = true; // ローディング開始
     final user = _ref.read(authStateProvider).value;
-    if (user != null) {
-      await _workspaceRepository.joinWorkspace(workspaceId, user.uid);
+    if (user == null) {
+      state = false;
+      return;
     }
-    state = false;
+    try {
+      await _workspaceRepository.joinWorkspace(workspaceId, user.uid);
+    } catch (e) {
+      // ★ エラーをログに出力
+      log('ワークスペース参加エラー: $e');
+      // ★ エラー時に画面にスナックバーでメッセージを表示
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('エラー: ${e.toString()}')));
+      }
+    } finally {
+      state = false;
+    }
   }
 }

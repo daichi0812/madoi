@@ -156,15 +156,21 @@ class _JoinWorkspaceDialogState extends ConsumerState<JoinWorkspaceDialog> {
   void joinWorkspace() async {
     final code = _codeController.text.trim();
     if (code.isNotEmpty) {
-      await ref.read(workspaceControllerProvider.notifier).joinWorkspace(code);
+      await ref
+          .read(workspaceControllerProvider.notifier)
+          .joinWorkspace(context, code);
       if (mounted) {
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
+        context.go('/');
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ローディング状態をProviderから監視
+    final isLoading = ref.watch(workspaceControllerProvider);
+
     return AlertDialog(
       title: const Text('ワークスペースに参加'),
       content: TextField(
@@ -176,7 +182,14 @@ class _JoinWorkspaceDialogState extends ConsumerState<JoinWorkspaceDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('キャンセル'),
         ),
-        ElevatedButton(onPressed: joinWorkspace, child: const Text('参加')),
+        ElevatedButton(
+          // ローディング中はボタンを押せなくする
+          onPressed: isLoading ? null : joinWorkspace,
+          // ローディング中はインジケーターを表示
+          child: isLoading
+              ? const CircularProgressIndicator(strokeWidth: 2)
+              : const Text('参加'),
+        ),
       ],
     );
   }
