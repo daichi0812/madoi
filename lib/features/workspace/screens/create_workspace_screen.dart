@@ -26,7 +26,8 @@ class _CreateWorkspaceScreenState extends ConsumerState<CreateWorkspaceScreen> {
 
       // 成功したら前の画面に戻る
       if (mounted) {
-        context.pop();
+        // context.pop();
+        context.go('/');
       }
     }
   }

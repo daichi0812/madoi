@@ -1,5 +1,7 @@
 // lib/features/workspace/providers/workspace_providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:developer';
+
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/workspace/repositories/workspace_repository.dart';
 
@@ -32,9 +34,17 @@ class WorkspaceController extends StateNotifier<bool> {
   Future<void> createWorkspace(String name) async {
     state = true; // ローディング開始
     final user = _ref.read(authStateProvider).value;
-    if (user != null) {
-      await _workspaceRepository.createWorkspace(name, user.uid);
+    if (user == null) {
+      state = false;
+      return;
     }
-    state = false; // ローディング終了
+    try {
+      await _workspaceRepository.createWorkspace(name, user.uid);
+    } catch (e) {
+      log('ワークスペース作成エラー: $e');
+    } finally {
+      // finalyブロックで必ずローディングを終了させる
+      state = false;
+    }
   }
 }
