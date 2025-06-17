@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:madoi/common/router/router.dart";
 import 'firebase_options.dart'; // flutterfire configureで生成されたファイル
 
 void main() async {
@@ -14,18 +15,17 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    // goRouterProviderを監視
+    final router = ref.watch(goRouterProvider);
+    return MaterialApp.router(
       title: 'Madoi',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const Scaffold(
-        // ここを後でログイン画面などに差し替える
-        body: Center(child: Text('セットアップ完了！')),
-      ),
+      routerConfig: router,
     );
   }
 }
