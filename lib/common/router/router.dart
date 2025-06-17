@@ -1,6 +1,5 @@
 // lib/common/router/router.dart
 
-import "dart:async";
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,26 +50,5 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // 上記の条件に当てはまらない場合は、リダイレクトしない
       return null;
     },
-
-    // authStateProvider の状態が変わるたびにリダイレクトを再評価する
-    refreshListenable: GoRouterRefreshStream(
-      ref.watch(authStateProvider.stream),
-    ),
   );
 });
-
-// StreamをListenableに変換してGoRouterに状態変化を通知するためのヘルパークラス
-class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
-    notifyListeners();
-    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
-  }
-
-  late final StreamSubscription<dynamic> _subscription;
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
-  }
-}
