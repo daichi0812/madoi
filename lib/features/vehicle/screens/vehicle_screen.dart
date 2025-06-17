@@ -1,8 +1,8 @@
 // lib/features/vehicle/screens/vehicle_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
-import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
 class VehicleScreen extends ConsumerWidget {
   const VehicleScreen({super.key});
@@ -14,6 +14,7 @@ class VehicleScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) {
+        final isLoading = ref.watch(vehicleControllerProvider);
         return AlertDialog(
           title: const Text('新しい車両を追加'),
           content: Column(
@@ -37,24 +38,26 @@ class VehicleScreen extends ConsumerWidget {
               child: const Text('キャンセル'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                final nickname = nicknameController.text.trim();
-                final workspaceId = ref.read(activeWorkspaceProvider).value?.id;
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      final name = nameController.text.trim();
+                      final nickname = nicknameController.text.trim();
 
-                if (name.isNotEmpty &&
-                    nickname.isNotEmpty &&
-                    workspaceId != null) {
-                  ref
-                      .read(vehicleRepositoryProvider)
-                      .addVehicle(
-                        name: name,
-                        nickname: nickname,
-                        workspaceId: workspaceId,
-                      );
-                  Navigator.of(context).pop();
-                }
-              },
+                      if (name.isNotEmpty && nickname.isNotEmpty) {
+                        await ref
+                            .read(vehicleControllerProvider.notifier)
+                            .addVehicle(
+                              context: context,
+                              name: name,
+                              nickname: nickname,
+                            );
+                        // 処理終了後にダイヤログを閉じる
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      }
+                    },
               child: const Text('追加'),
             ),
           ],
@@ -90,7 +93,7 @@ class VehicleScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('エラー: $err')),
+        error: (err, stack) => Center(child: Text('エラー: ${err.toString()}')),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddVehicleDialog(context, ref),
