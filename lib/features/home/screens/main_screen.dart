@@ -107,7 +107,22 @@ class NoWorkspaceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('madoi')),
+      appBar: AppBar(
+        title: const Text('madoi'),
+        actions: [
+          // Consumerを使ってProviderにアクセスし、ログアウト機能を実装
+          Consumer(
+            builder: (context, ref, child) {
+              return IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () {
+                  ref.read(authRepositoryProvider).signOut();
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
