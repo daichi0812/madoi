@@ -15,9 +15,11 @@ class RecordRepository {
     required String workspaceId,
   }) {
     return _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
         .collection('records')
-        .where('workspaceId', isEqualTo: workspaceId)
-        .where('vehicleId', isEqualTo: vehicleId)
         .where('type', isEqualTo: type.name)
         .orderBy('recordDate', descending: true) // 新しい順に並べる
         .snapshots()
