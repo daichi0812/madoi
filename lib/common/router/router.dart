@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/auth/screens/login_screen.dart';
 import 'package:madoi/features/home/screens/main_screen.dart';
+import "package:madoi/features/workspace/screens/create_workspace_screen.dart";
 
 // go_routerのインスタンスをシングルトンで提供するProvider
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -24,6 +25,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/',
         name: 'home',
         builder: (context, state) => const MainScreen(),
+      ),
+      GoRoute(
+        path: "/create-workspace",
+        name: 'create-workspace',
+        builder: (context, state) => const CreateWorkspaceScreen(),
       ),
     ],
 

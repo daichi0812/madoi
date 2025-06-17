@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/todo/screens/todo_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
@@ -112,7 +114,8 @@ class NoWorkspaceScreen extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                // TODO: ワークスペース作成画面に遷移
+                // ワークスペース作成画面に遷移
+                context.go('/create-workspace');
               },
               child: const Text('新しいワークスペースを作成'),
             ),
