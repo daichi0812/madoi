@@ -1,0 +1,45 @@
+// lib/features/vehicle/screens/vehicle_detail_screen.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
+
+class VehicleDetailScreen extends ConsumerWidget {
+  final String vehicleId;
+  const VehicleDetailScreen({super.key, required this.vehicleId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // vehicleDetailProviderを呼び出し
+    final vehicleData = ref.watch(vehicleDetailProvider(vehicleId));
+
+    // TabControllerを使ってタブ付きの画面を簡単に作成
+    return DefaultTabController(
+      length: 3, // タブの数
+      child: Scaffold(
+        appBar: AppBar(
+          title: vehicleData.when(
+            data: (vehicle) => Text(vehicle?.name ?? '詳細'),
+            loading: () => const Text('...'),
+            error: (err, stack) => const Text('エラー'),
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.checklist), text: 'ToDo'),
+              Tab(icon: Icon(Icons.build), text: '整備記録'),
+              Tab(icon: Icon(Icons.tune), text: 'セッティング'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            // 各タブに表示する仮のコンテンツ
+            Center(child: Text('ToDoリストがここに表示されます')),
+            Center(child: Text('整備記録がここに表示されます')),
+            Center(child: Text('セッティング記録がここに表示されます')),
+          ],
+        ),
+      ),
+    );
+  }
+}

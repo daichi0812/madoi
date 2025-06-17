@@ -21,6 +21,14 @@ final vehiclesProvider = StreamProvider<List<VehicleModel>>((ref) {
       .getVehiclesStream(activeWorkspace.id);
 });
 
+// IDを引数に取り、単一の車両データを取得するProvider.family
+final vehicleDetailProvider = StreamProvider.family<VehicleModel?, String>((
+  ref,
+  vehicleId,
+) {
+  return ref.watch(vehicleRepositoryProvider).getVehicleStream(vehicleId);
+});
+
 // Controller Provider
 final vehicleControllerProvider =
     StateNotifierProvider<VehicleController, bool>((ref) {

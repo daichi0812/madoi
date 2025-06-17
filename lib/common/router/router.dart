@@ -7,6 +7,7 @@ import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/auth/screens/login_screen.dart';
 import 'package:madoi/features/home/screens/main_screen.dart';
 import "package:madoi/features/workspace/screens/create_workspace_screen.dart";
+import 'package:madoi/features/vehicle/screens/vehicle_detail_screen.dart';
 
 // go_routerのインスタンスをシングルトンで提供するProvider
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -30,6 +31,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: "/create-workspace",
         name: 'create-workspace',
         builder: (context, state) => const CreateWorkspaceScreen(),
+      ),
+      GoRoute(
+        path: '/vehicle/:vehicleId',
+        name: 'vehicle-detail',
+        builder: (context, state) {
+          // パスからvehicleIdを取得
+          final vehicleId = state.pathParameters['vehicleId']!;
+          return VehicleDetailScreen(vehicleId: vehicleId);
+        },
       ),
     ],
 

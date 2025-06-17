@@ -38,4 +38,16 @@ class VehicleRepository {
     );
     await newVehicleRef.set(newVehicle.toMap());
   }
+
+  // 車両IDをもとに単一の車両データをStreamで取得
+  Stream<VehicleModel?> getVehicleStream(String vehicleId) {
+    return _firestore.collection("vehicles").doc(vehicleId).snapshots().map((
+      snapshot,
+    ) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return VehicleModel.fromMap(snapshot.data()!);
+      }
+      return null;
+    });
+  }
 }

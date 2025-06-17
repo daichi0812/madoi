@@ -1,6 +1,7 @@
 // lib/features/vehicle/screens/vehicle_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:go_router/go_router.dart";
 
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
 
@@ -86,7 +87,7 @@ class VehicleScreen extends ConsumerWidget {
                 title: Text(vehicle.name),
                 subtitle: Text(vehicle.nickname),
                 onTap: () {
-                  // TODO: 車両詳細画面に遷移
+                  context.go('/vehicle/${vehicle.id}');
                 },
               );
             },
