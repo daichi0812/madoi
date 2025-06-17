@@ -5,12 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:madoi/features/auth/providers/auth_providers.dart';
+import 'package:madoi/features/settings/screens/settings_screen.dart';
 import 'package:madoi/features/todo/screens/todo_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
-import 'package:madoi/features/settings/screens/settings_screen.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
-// MainScreenをStatefulWidgetにすることで、選択中のタブの状態を管理
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -19,18 +18,11 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  // 選択中のタブのインデックス
   int _selectedIndex = 0;
 
-  // BottomNavigationBarで表示する画面のリスト
-  final List<Widget> _pages = [
-    const VehicleScreen(), // 0番目のタブ
-    const TodoScreen(), // 1番目のタブ
-    const SettingsScreen(),
-    // 今後、書類管理やチャット画面などを追加していく
-  ];
+  // ★ TodoScreenのプレースホルダーを削除し、実際の画面リストを定義
+  final List<Widget> _pages = [const VehicleScreen(), const SettingsScreen()];
 
-  // タブがタップされたときに呼ばれるメソッド
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -39,59 +31,57 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // currentUserDataProvider を監視
     final userData = ref.watch(currentUserDataProvider);
 
     return userData.when(
-      // データ取得成功時の処理
       data: (user) {
-        // ユーザーデータがnull、または所属ワークスペースがない場合
         if (user == null || user.memberOfWorkspaces.isEmpty) {
-          // ワークスペース未所属画面を表示
           return const NoWorkspaceScreen();
         }
 
-        // 所属している場合は、これまでのUIを返す
+        // ★★★ 1. AppBarの改善 ★★★
+        // アクティブなワークスペースの情報を取得してAppBarのタイトルに表示
+        final activeWorkspace = ref.watch(activeWorkspaceProvider);
+
         return Scaffold(
           appBar: AppBar(
-            title: const Text('madoi'), // ここは将来的にワークスペース名などに変更
+            // ワークスペース名を表示、ローディング中は'...'を表示
+            title: Text(
+              activeWorkspace.when(
+                data: (ws) => ws?.name ?? 'ワークスペース',
+                loading: () => '...',
+                error: (e, s) => 'エラー',
+              ),
+            ),
             actions: [
-              // Consumerを使ってProviderにアクセスし、ログアウト機能を実装
-              Consumer(
-                builder: (context, ref, child) {
-                  return IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: () {
-                      ref.read(authRepositoryProvider).signOut();
-                    },
-                  );
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () {
+                  ref.read(authRepositoryProvider).signOut();
                 },
               ),
             ],
           ),
-          // 選択中のインデックスに応じて表示する画面を切り替え
-          body: _pages[_selectedIndex],
+          body: IndexedStack(index: _selectedIndex, children: _pages),
+          // ★★★ 2. BottomNavigationBarの改善 ★★★
           bottomNavigationBar: BottomNavigationBar(
-            // タップされたときの処理
             onTap: _onItemTapped,
-            // 現在選択中のタブのインデックス
             currentIndex: _selectedIndex,
-            // タブのアイテムリスト
+            // 選択中のアイテムの色を指定
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            // 選択されていないアイテムの色を指定
+            unselectedItemColor: Colors.grey,
+            // ★ ToDoタブを削除し、車両と設定のみに
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_car),
                 label: '車両',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.checklist),
-                label: 'ToDo',
               ),
               BottomNavigationBarItem(icon: Icon(Icons.settings), label: '設定'),
             ],
           ),
         );
       },
-      // ローディング中の処理
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (err, stack) =>
@@ -100,58 +90,76 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 }
 
-// ワークスペースに所属していない場合に表示する仮の画面
-class NoWorkspaceScreen extends StatelessWidget {
+// ★★★ 3. NoWorkspaceScreenのUI改善 ★★★
+class NoWorkspaceScreen extends ConsumerWidget {
   const NoWorkspaceScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('madoi'),
-        actions: [
-          // Consumerを使ってProviderにアクセスし、ログアウト機能を実装
-          Consumer(
-            builder: (context, ref, child) {
-              return IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () {
-                  ref.read(authRepositoryProvider).signOut();
-                },
-              );
-            },
-          ),
-        ],
-      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('ようこそ！'),
-            const SizedBox(height: 20),
-            const Text('まだワークスペースに参加していません。'),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // ワークスペース作成画面に遷移
-                context.go('/create-workspace');
-              },
-              child: const Text('新しいワークスペースを作成'),
-            ),
-            const SizedBox(height: 20),
-            OutlinedButton(
-              onPressed: () {
-                // 招待コード入力ダイアログを表示
-                showDialog(
-                  context: context,
-                  builder: (context) => const JoinWorkspaceDialog(),
-                );
-              },
-              child: const Text('招待コードで参加'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Icon(
+                Icons.group_work_rounded,
+                size: 100,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'madoi へようこそ！',
+                textAlign: TextAlign.center,
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '最初のステップとして、\nワークスペースを作成するか、\n既存のワークスペースに参加してください。',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  context.go('/create-workspace');
+                },
+                child: const Text('新しいワークスペースを作成'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const JoinWorkspaceDialog(),
+                  );
+                },
+                child: const Text('招待コードで参加'),
+              ),
+            ],
+          ),
         ),
       ),
+      // ログアウトボタンを右上に配置
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: () => ref.read(authRepositoryProvider).signOut(),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: const Icon(Icons.logout),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     );
   }
 }

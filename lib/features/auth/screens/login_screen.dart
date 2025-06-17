@@ -1,5 +1,4 @@
-// login_screen.dart
-// UI画面、ここではConsumerWidgetを使い、RiverpodのProviderにアクセスできるようにする
+// lib/features/auth/screens/login_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,39 +9,83 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 画面のテーマを取得
+    final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('madoi へようこそ')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('まずはログインしてください', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.login), // ここをGoogleアイコンなどに変更すると良い
-              label: const Text('Googleでサインイン'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+      // ★ AppBarを削除し、より没入感のあるデザインに
+      body: SafeArea(
+        child: Center(
+          // ★ 全体に余白を追加
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment:
+                  CrossAxisAlignment.stretch, // 子ウィジェットを横幅いっぱいに広げる
+              children: [
+                // ★ 1. アプリアイコンやイラストを追加
+                Icon(
+                  Icons.group_work_outlined, // アプリのロゴやイラストに置き換える
+                  size: 120,
+                  color: colors.primary,
                 ),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () async {
-                // ボタンが押されたらログイン処理を呼び出す
-                try {
-                  await ref.read(loginProvider).signInWithGoogle();
-                  // 成功した場合、次のステップの画面振り分けによって自動でメイン画面に遷移します。
-                } catch (e) {
-                  if (!context.mounted) return;
-                  // エラーが発生した場合の処理
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('ログインに失敗しました: ${e.toString()}')),
-                  );
-                }
-              },
+                const SizedBox(height: 24),
+
+                // ★ 2. テキストのスタイルを調整
+                Text(
+                  'madoiへようこそ',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'あなたの部活動を、もっとスマートに。',
+                  textAlign: TextAlign.center,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 48),
+
+                // ★ 3. Googleサインインボタンのデザインを改善
+                ElevatedButton.icon(
+                  // TODO: 'assets/images/google_logo.png' のようなパスで、実際のGoogleロゴ画像に差し替えるとより良くなります
+                  icon: const Icon(
+                    Icons.g_mobiledata,
+                    size: 28,
+                  ), // 仮のGoogleアイコン
+                  label: const Text('Googleでサインイン'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black, // テキストの色
+                    backgroundColor: Colors.white, // ボタンの背景色
+                    minimumSize: const Size(double.infinity, 50), // ボタンの最小サイズ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey[300]!), // 枠線
+                    ),
+                    elevation: 1,
+                  ),
+                  onPressed: () async {
+                    try {
+                      await ref.read(loginProvider).signInWithGoogle();
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('ログインに失敗しました: ${e.toString()}'),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
