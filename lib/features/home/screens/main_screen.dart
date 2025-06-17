@@ -160,8 +160,8 @@ class _JoinWorkspaceDialogState extends ConsumerState<JoinWorkspaceDialog> {
           .read(workspaceControllerProvider.notifier)
           .joinWorkspace(context, code);
       if (mounted) {
-        // Navigator.of(context).pop();
-        context.go('/');
+        Navigator.of(context).pop();
+        // context.go('/');
       }
     }
   }
