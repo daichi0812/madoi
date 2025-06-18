@@ -114,7 +114,25 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
             : TextField(
                 controller: _contentController,
                 decoration: const InputDecoration(
-                  hintText: 'Markdown形式で記録を入力...',
+                  hintText: '''
+Markdown記法で記録を分かりやすく！
+
+【入力例】
+# オイル交換 (大きな見出し)
+## フロントブレーキ (小さな見出し)
+
+**ここを太文字に** して強調できます。
+*ここはイタリック(斜体)に* なります。
+
+- 箇条書きはハイフンとスペース
+- このように項目を分けられます
+
+1. 番号付きリストも使えます
+2. 順番が大切な記録に便利です
+
+---
+↑ハイフン3つで区切り線が引けます
+''',
                   border: InputBorder.none,
                 ),
                 maxLines: null, // 複数行入力
