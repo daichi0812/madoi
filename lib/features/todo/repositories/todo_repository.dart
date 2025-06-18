@@ -28,6 +28,28 @@ class TodoRepository {
         );
   }
 
+  // 単一のToDoデータをStreamで取得するメソッドを追加
+  Stream<TodoModel?> getTodoStream({
+    required String workspaceId,
+    required String vehicleId,
+    required String todoId,
+  }) {
+    return _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
+        .collection("todos")
+        .doc(todoId)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists && snapshot.data() != null) {
+            return TodoModel.fromMap(snapshot.data()!);
+          }
+          return null;
+        });
+  }
+
   // 新しいToDoを追加
   Future<void> addTodo({
     required String content,
@@ -50,6 +72,23 @@ class TodoRepository {
       workspaceId: workspaceId,
     );
     await newTodoRef.set(newTodo.toMap());
+  }
+
+  // ToDoの内容を更新するメソッドを追加
+  Future<void> updateTodo({
+    required String workspaceId,
+    required String vehicleId,
+    required String todoId,
+    required String content,
+  }) async {
+    await _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('todos')
+        .doc(todoId)
+        .update({'content': content});
   }
 
   // ToDoの完了状態を切り替える

@@ -12,13 +12,14 @@ import 'package:madoi/features/vehicle/screens/vehicle_detail_screen.dart';
 import 'package:madoi/features/record/models/record_model.dart';
 import 'package:madoi/features/record/screens/add_edit_record_screen.dart';
 import 'package:madoi/features/record/screens/record_detail_screen.dart';
+import 'package:madoi/features/todo/screens/todo_detail_screen.dart';
+import 'package:madoi/features/todo/screens/add_edit_todo_screen.dart';
 
 // go_routerのインスタンスをシングルトンで提供するProvider
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     // アプリの初期表示パス
     initialLocation: '/login',
-
     // ルートの定義
     routes: [
       GoRoute(
@@ -46,6 +47,46 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/workspace/:workspaceId/vehicle/:vehicleId/add-todo',
+        name: 'add-todo',
+        builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final vehicleId = state.pathParameters['vehicleId']!;
+          return AddEditTodoScreen(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/workspace/:workspaceId/vehicle/:vehicleId/todo/:todoId',
+        name: 'todo-detail',
+        builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final vehicleId = state.pathParameters['vehicleId']!;
+          final todoId = state.pathParameters['todoId']!;
+          return TodoDetailScreen(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+            todoId: todoId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/workspace/:workspaceId/vehicle/:vehicleId/todo/:todoId/edit',
+        name: 'edit-todo',
+        builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final vehicleId = state.pathParameters['vehicleId']!;
+          final todoId = state.pathParameters['todoId']!;
+          return AddEditTodoScreen(
+            workspaceId: workspaceId,
+            vehicleId: vehicleId,
+            todoId: todoId, // 編集モード
+          );
+        },
+      ),
+      GoRoute(
         path:
             '/workspace/:workspaceId/vehicle/:vehicleId/add-record/:recordType',
         name: 'add-record',
@@ -62,7 +103,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        // パスをより具体的にする
         path: '/workspace/:workspaceId/vehicle/:vehicleId/record/:recordId',
         name: 'record-detail',
         builder: (context, state) {

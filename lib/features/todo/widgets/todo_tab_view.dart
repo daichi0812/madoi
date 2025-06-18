@@ -1,92 +1,66 @@
 // lib/features/todo/widgets/todo_tab_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:madoi/features/todo/models/todo_model.dart';
 import 'package:madoi/features/todo/providers/todo_providers.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
-class TodoTabView extends ConsumerStatefulWidget {
+class TodoTabView extends ConsumerWidget {
   final String vehicleId;
   const TodoTabView({super.key, required this.vehicleId});
 
   @override
-  ConsumerState<TodoTabView> createState() => _TodoTabViewState();
-}
-
-class _TodoTabViewState extends ConsumerState<TodoTabView> {
-  final _todoContentController = TextEditingController();
-
-  void _addTodo() {
-    final content = _todoContentController.text.trim();
-    if (content.isEmpty) return;
-
-    final workspaceId = ref.read(activeWorkspaceProvider).value?.id;
-    if (workspaceId == null) return;
-
-    ref
-        .read(todoControllerProvider)
-        .addTodo(
-          content: content,
-          vehicleId: widget.vehicleId,
-          workspaceId: workspaceId,
-        );
-    _todoContentController.clear();
-    FocusScope.of(context).unfocus(); // キーボードを閉じる
-  }
-
-  @override
-  void dispose() {
-    _todoContentController.dispose();
-    super.dispose();
-  }
-
-  // 削除確認ダイヤログを表示するメソッド
-  void _showDeleteConfirmationDialog(TodoModel todo) {
-    final activeWorkspaceId = ref.read(activeWorkspaceProvider).value?.id;
-    if (activeWorkspaceId == null) return;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('ToDoの削除'),
-          content: Text('「${todo.content}」を本当に削除しますか？'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('キャンセル'),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('削除', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                ref
-                    .read(todoControllerProvider)
-                    .deleteTodo(
-                      workspaceId: activeWorkspaceId,
-                      vehicleId: widget.vehicleId,
-                      todoId: todo.id,
-                    );
-                Navigator.of(dialogContext).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final todosAsyncValue = ref.watch(todosProvider(widget.vehicleId));
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final todosAsyncValue = ref.watch(todosProvider(vehicleId));
     final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
 
+    void toggleStatus(TodoModel todo, bool isDone) {
+      if (activeWorkspaceId != null) {
+        ref
+            .read(todoControllerProvider.notifier)
+            .toggleTodoStatus(
+              workspaceId: activeWorkspaceId,
+              vehicleId: vehicleId,
+              todoId: todo.id,
+              isDone: isDone,
+            );
+      }
+    }
+
+    Widget buildTodoTile(TodoModel todo) {
+      return ListTile(
+        leading: Checkbox(
+          value: todo.isDone,
+          onChanged: (isDone) => toggleStatus(todo, isDone ?? false),
+        ),
+        title: Text(
+          todo.content,
+          style: todo.isDone
+              ? const TextStyle(
+                  decoration: TextDecoration.lineThrough,
+                  color: Colors.grey,
+                )
+              : null,
+        ),
+        subtitle: todo.isDone && todo.completedAt != null
+            ? Text(
+                '完了: ${DateFormat('yyyy/MM/dd').format(todo.completedAt!.toDate())}',
+              )
+            : null,
+        onTap: () {
+          if (activeWorkspaceId != null) {
+            context.push(
+              '/workspace/$activeWorkspaceId/vehicle/$vehicleId/todo/${todo.id}',
+            );
+          }
+        },
+      );
+    }
+
     return Scaffold(
-      // 1. ToDoリストをbodyに配置
       body: todosAsyncValue.when(
         data: (todos) {
           final incompleteTodos = todos.where((todo) => !todo.isDone).toList();
@@ -103,56 +77,11 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
 
           return ListView(
             children: [
-              // 未完了タスクのリスト
-              ...incompleteTodos.map((todo) {
-                return CheckboxListTile(
-                  title: Text(todo.content),
-                  value: todo.isDone,
-                  onChanged: (isDone) {
-                    if (activeWorkspaceId != null && isDone != null) {
-                      ref
-                          .read(todoControllerProvider)
-                          .toggleTodoStatus(
-                            workspaceId: activeWorkspaceId,
-                            vehicleId: widget.vehicleId,
-                            todoId: todo.id,
-                            isDone: isDone,
-                          );
-                    }
-                  },
-                );
-              }),
-              // 完了済みタスクが1件以上あればExpansionTileを表示
+              ...incompleteTodos.map(buildTodoTile),
               if (completeTodos.isNotEmpty)
                 ExpansionTile(
                   title: Text('完了 (${completeTodos.length})'),
-                  children: completeTodos.map((todo) {
-                    return CheckboxListTile(
-                      title: Text(
-                        todo.content,
-                        style: const TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '完了: ${DateFormat('yyyy/MM/dd').format((todo.completedAt ?? todo.createdAt).toDate())}',
-                      ),
-                      value: todo.isDone,
-                      onChanged: (isDone) {
-                        if (activeWorkspaceId != null && isDone != null) {
-                          ref
-                              .read(todoControllerProvider)
-                              .toggleTodoStatus(
-                                workspaceId: activeWorkspaceId,
-                                vehicleId: widget.vehicleId,
-                                todoId: todo.id,
-                                isDone: isDone,
-                              );
-                        }
-                      },
-                    );
-                  }).toList(),
+                  children: completeTodos.map(buildTodoTile).toList(),
                 ),
             ],
           );
@@ -160,23 +89,17 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('エラー: $err')),
       ),
-      // 2. ToDo入力欄を画面下部に配置
-      bottomNavigationBar: Padding(
-        padding: MediaQuery.of(context).viewInsets, // キーボード表示時にUIを押し上げる
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: TextField(
-            controller: _todoContentController,
-            decoration: InputDecoration(
-              hintText: '新しいToDoを追加',
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: _addTodo,
-              ),
-            ),
-            onSubmitted: (_) => _addTodo(),
-          ),
-        ),
+      // ★ フローティングアクションボタンを追加
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (activeWorkspaceId != null) {
+            context.push(
+              '/workspace/$activeWorkspaceId/vehicle/$vehicleId/add-todo',
+            );
+          }
+        },
+        tooltip: '新しいToDoを追加',
+        child: const Icon(Icons.add),
       ),
     );
   }
