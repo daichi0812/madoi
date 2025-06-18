@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:madoi/features/todo/models/todo_model.dart';
 import 'package:madoi/features/todo/providers/todo_providers.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
@@ -39,6 +40,43 @@ class _TodoTabViewState extends ConsumerState<TodoTabView> {
   void dispose() {
     _todoContentController.dispose();
     super.dispose();
+  }
+
+  // 削除確認ダイヤログを表示するメソッド
+  void _showDeleteConfirmationDialog(TodoModel todo) {
+    final activeWorkspaceId = ref.read(activeWorkspaceProvider).value?.id;
+    if (activeWorkspaceId == null) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('ToDoの削除'),
+          content: Text('「${todo.content}」を本当に削除しますか？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('キャンセル'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                ref
+                    .read(todoControllerProvider)
+                    .deleteTodo(
+                      workspaceId: activeWorkspaceId,
+                      vehicleId: widget.vehicleId,
+                      todoId: todo.id,
+                    );
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

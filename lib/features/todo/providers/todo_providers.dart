@@ -60,4 +60,16 @@ class TodoController {
       isDone: isDone,
     );
   }
+
+  Future<void> deleteTodo({
+    required String workspaceId,
+    required String vehicleId,
+    required String todoId,
+  }) async {
+    await _todoRepository.deleteTodo(
+      workspaceId: workspaceId,
+      vehicleId: vehicleId,
+      todoId: todoId,
+    );
+  }
 }

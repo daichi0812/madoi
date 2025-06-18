@@ -73,4 +73,20 @@ class TodoRepository {
       'completedAt': isDone ? Timestamp.now() : null,
     });
   }
+
+  // ToDoを削除するメソッド
+  Future<void> deleteTodo({
+    required String workspaceId,
+    required String vehicleId,
+    required String todoId,
+  }) async {
+    await _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("vehicles")
+        .doc(vehicleId)
+        .collection("todos")
+        .doc(todoId)
+        .delete();
+  }
 }
