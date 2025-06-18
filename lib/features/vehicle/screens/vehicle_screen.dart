@@ -1,9 +1,9 @@
 // lib/features/vehicle/screens/vehicle_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:madoi/features/vehicle/providers/vehicle_providers.dart';
+import 'package:madoi/features/vehicle/widgets/vehicle_list_item.dart';
 
 class VehicleScreen extends ConsumerWidget {
   const VehicleScreen({super.key});
@@ -126,41 +126,11 @@ class VehicleScreen extends ConsumerWidget {
           }
           // ★ ListViewに少し余白を追加
           return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             itemCount: vehicleList.length,
             itemBuilder: (context, index) {
               final vehicle = vehicleList[index];
-              // ★★★ 1. Cardウィジェットで囲む ★★★
-              return Card(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 6.0,
-                  horizontal: 8.0,
-                ),
-                child: InkWell(
-                  onTap: () {
-                    context.push('/vehicle/${vehicle.id}');
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          vehicle.name,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          vehicle.nickname,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              return VehicleListItem(vehicle: vehicle);
             },
           );
         },
