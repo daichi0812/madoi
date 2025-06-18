@@ -53,11 +53,10 @@ class LoginScreen extends ConsumerWidget {
 
                 // ★ 3. Googleサインインボタンのデザインを改善
                 ElevatedButton.icon(
-                  // TODO: 'assets/images/google_logo.png' のようなパスで、実際のGoogleロゴ画像に差し替えるとより良くなります
-                  icon: const Icon(
-                    Icons.g_mobiledata,
-                    size: 28,
-                  ), // 仮のGoogleアイコン
+                  icon: Image.network(
+                    'https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw',
+                    height: 24.0,
+                  ),
                   label: const Text('Googleでサインイン'),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black, // テキストの色

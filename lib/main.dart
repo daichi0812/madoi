@@ -30,9 +30,55 @@ class MyApp extends ConsumerWidget {
       router.refresh();
     });
 
+    // カラーバレットを定義
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.blue,
+      brightness: Brightness.light,
+    );
+
     return MaterialApp.router(
       title: 'Madoi',
-      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'NotoSansJP'),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: colorScheme,
+        fontFamily: 'NotoSansJP',
+
+        // AppBarのテーマ
+        appBarTheme: AppBarTheme(
+          backgroundColor: colorScheme.surface,
+          foregroundColor: colorScheme.onSurface,
+          elevation: 0,
+        ),
+
+        // ElevatedButtonのテーマ
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+
+        // Cardのテーマ
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          clipBehavior: Clip.antiAlias, // 角丸に画像を合わせる
+        ),
+
+        // ListTileのテーマ
+        listTileTheme: const ListTileThemeData(iconColor: Colors.blue),
+
+        // 入力フォームのテーマ
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
       routerConfig: router,
     );
   }

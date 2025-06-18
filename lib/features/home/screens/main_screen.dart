@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/settings/screens/settings_screen.dart';
-import 'package:madoi/features/todo/screens/todo_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
@@ -126,20 +125,18 @@ class NoWorkspaceScreen extends ConsumerWidget {
                 style: textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
               ),
               const SizedBox(height: 40),
-              ElevatedButton(
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('新しいワークスペースを作成'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   context.go('/create-workspace');
                 },
-                child: const Text('新しいワークスペースを作成'),
               ),
               const SizedBox(height: 12),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              TextButton(
                 onPressed: () {
                   showDialog(
                     context: context,

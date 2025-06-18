@@ -132,21 +132,33 @@ class VehicleScreen extends ConsumerWidget {
               final vehicle = vehicleList[index];
               // ★★★ 1. Cardウィジェットで囲む ★★★
               return Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(vertical: 6.0),
-                child: ListTile(
-                  // ★★★ 2. アイコンを追加 ★★★
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.directions_car),
-                  ),
-                  title: Text(
-                    vehicle.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(vehicle.nickname),
+                margin: const EdgeInsets.symmetric(
+                  vertical: 6.0,
+                  horizontal: 8.0,
+                ),
+                child: InkWell(
                   onTap: () {
                     context.push('/vehicle/${vehicle.id}');
                   },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicle.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          vehicle.nickname,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
