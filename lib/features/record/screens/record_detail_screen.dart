@@ -48,7 +48,7 @@ class RecordDetailScreen extends ConsumerWidget {
             icon: const Icon(Icons.edit),
             onPressed: () {
               // 編集画面へ遷移
-              context.go(
+              context.push(
                 '/workspace/$workspaceId/vehicle/$vehicleId/record/$recordId/edit',
               );
             },
