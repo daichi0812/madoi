@@ -85,7 +85,7 @@ class RecordController extends StateNotifier<bool> {
     : _recordRepository = recordRepository,
       super(false); // 初期状態: not loading
 
-  Future<void> addRecord({
+  Future<bool> addRecord({
     required BuildContext context,
     required String content,
     required RecordType type,
@@ -93,6 +93,7 @@ class RecordController extends StateNotifier<bool> {
     required String workspaceId,
   }) async {
     state = true;
+    bool isSuccess = false;
     try {
       await _recordRepository.addRecord(
         content: content,
@@ -100,6 +101,7 @@ class RecordController extends StateNotifier<bool> {
         vehicleId: vehicleId,
         workspaceId: workspaceId,
       );
+      isSuccess = true;
     } catch (e) {
       log('記録追加エラー: $e');
       if (context.mounted) {
@@ -107,13 +109,15 @@ class RecordController extends StateNotifier<bool> {
           context,
         ).showSnackBar(SnackBar(content: Text('エラーが発生しました: ${e.toString()}')));
       }
+      isSuccess = false;
     } finally {
       state = false;
     }
+    return isSuccess;
   }
 
   // 記録を更新するメソッド
-  Future<void> updateRecord({
+  Future<bool> updateRecord({
     required BuildContext context,
     required String recordId,
     required String content,
@@ -121,6 +125,7 @@ class RecordController extends StateNotifier<bool> {
     required String vehicleId,
   }) async {
     state = true;
+    bool isSuccess = false;
     try {
       await _recordRepository.updateRecord(
         content: content,
@@ -128,6 +133,7 @@ class RecordController extends StateNotifier<bool> {
         vehicleId: vehicleId,
         recordId: recordId,
       );
+      isSuccess = true;
     } catch (e) {
       log('記録更新エラー: $e');
       if (context.mounted) {
@@ -135,8 +141,10 @@ class RecordController extends StateNotifier<bool> {
           context,
         ).showSnackBar(SnackBar(content: Text('エラーが発生しました: ${e.toString()}')));
       }
+      isSuccess = false;
     } finally {
       state = false;
     }
+    return isSuccess;
   }
 }

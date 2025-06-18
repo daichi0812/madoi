@@ -57,9 +57,10 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
     final workspaceId = ref.read(activeWorkspaceProvider).value?.id;
 
     if (content.isNotEmpty && workspaceId != null) {
+      bool isSuccess = false;
       if (_isEditMode) {
         // 編集モードの処理
-        await ref
+        isSuccess = await ref
             .read(recordControllerProvider.notifier)
             .updateRecord(
               content: content,
@@ -70,7 +71,7 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
             );
       } else {
         // 新規作成モードの処理
-        await ref
+        isSuccess = await ref
             .read(recordControllerProvider.notifier)
             .addRecord(
               context: context,
@@ -81,9 +82,9 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
             );
       }
 
-      if (mounted) {
-        // context.pop();
-        context.go('/vehicle/${widget.vehicleId}');
+      if (mounted && isSuccess) {
+        context.pop();
+        // context.go('/vehicle/${widget.vehicleId}');
       }
     }
   }
