@@ -27,6 +27,7 @@ class AddEditRecordScreen extends ConsumerStatefulWidget {
 
 class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
   final _contentController = TextEditingController();
+  final _focusNode = FocusNode();
   bool get _isEditMode => widget.recordId != null;
 
   @override
@@ -50,6 +51,14 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
             }
           });
     }
+  }
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    // 画面が不要になったらFocusNodeも破棄してメモリを解放します
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _saveRecord() async {
@@ -107,14 +116,23 @@ class _AddEditRecordScreenState extends ConsumerState<AddEditRecordScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : TextField(
-                controller: _contentController,
-                decoration: const InputDecoration(
-                  hintText: '''
+      body: GestureDetector(
+        // これにより、画面のどこをタップしても反応します
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          // タップされたらTextFieldにフォーカスを当てます
+          _focusNode.requestFocus();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : TextField(
+                  // TextFieldに先ほど定義したFocusNodeを関連付けます
+                  focusNode: _focusNode,
+                  controller: _contentController,
+                  decoration: const InputDecoration(
+                    hintText: '''
 Markdown記法で記録を分かりやすく！
 
 【入力例】
@@ -133,12 +151,13 @@ Markdown記法で記録を分かりやすく！
 ---
 ↑ハイフン3つで区切り線が引けます
 ''',
-                  border: InputBorder.none,
+                    border: InputBorder.none,
+                  ),
+                  maxLines: null, // 複数行入力
+                  expands: true, // 入力欄を全画面に広げる
+                  autofocus: true,
                 ),
-                maxLines: null, // 複数行入力
-                expands: true, // 入力欄を全画面に広げる
-                autofocus: true,
-              ),
+        ),
       ),
     );
   }
