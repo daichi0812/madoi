@@ -29,7 +29,7 @@ class VehicleListItem extends ConsumerWidget {
               CircleAvatar(
                 backgroundColor: Theme.of(
                   context,
-                ).colorScheme.primary.withOpacity(0.1),
+                ).colorScheme.primary.withAlpha(26),
                 foregroundColor: Theme.of(context).colorScheme.primary,
                 child: const Icon(Icons.directions_car),
               ),
