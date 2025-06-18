@@ -72,10 +72,11 @@ class WorkspaceController extends StateNotifier<bool> {
     }
     try {
       await _workspaceRepository.joinWorkspace(workspaceId, user.uid);
-    } catch (e) {
-      // ★ エラーをログに出力
+    } catch (e, s) {
+      // エラーをログに出力
       log('ワークスペース参加エラー: $e');
-      // ★ エラー時に画面にスナックバーでメッセージを表示
+      log('スタックトレース: $s'); // スタックトレースをログに出力
+      // エラー時に画面にスナックバーでメッセージを表示
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,

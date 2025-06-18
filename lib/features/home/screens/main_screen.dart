@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:madoi/common/router/router.dart';
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/settings/screens/settings_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
@@ -182,6 +183,9 @@ class _JoinWorkspaceDialogState extends ConsumerState<JoinWorkspaceDialog> {
       if (mounted) {
         Navigator.of(context).pop();
         // context.go('/');
+
+        // ワークスペース情報が更新されたことをルーターに通知し、画面を再描画させる
+        ref.read(goRouterProvider).refresh();
       }
     }
   }
