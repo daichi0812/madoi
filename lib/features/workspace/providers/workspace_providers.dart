@@ -63,27 +63,32 @@ class WorkspaceController extends StateNotifier<bool> {
     }
   }
 
-  Future<void> joinWorkspace(BuildContext context, String workspaceId) async {
+  Future<bool> joinWorkspace(BuildContext context, String workspaceId) async {
     state = true; // ローディング開始
     final user = _ref.read(authStateProvider).value;
     if (user == null) {
       state = false;
-      return;
+      return false;
     }
     try {
+      // 招待コード(workspaceId)とユーザーIDを渡して参加処理を実行
       await _workspaceRepository.joinWorkspace(workspaceId, user.uid);
+      return true;
     } catch (e, s) {
       // エラーをログに出力
       log('ワークスペース参加エラー: $e');
       log('スタックトレース: $s'); // スタックトレースをログに出力
       // エラー時に画面にスナックバーでメッセージを表示
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('エラー: ${e.toString()}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', "")),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
       }
-    } finally {
       state = false;
+      return false;
     }
   }
 }
