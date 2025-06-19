@@ -20,7 +20,7 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   int _selectedIndex = 0;
 
-  // ★ TodoScreenのプレースホルダーを削除し、実際の画面リストを定義
+  // TodoScreenのプレースホルダーを削除し、実際の画面リストを定義
   final List<Widget> _pages = [const VehicleScreen(), const SettingsScreen()];
 
   void _onItemTapped(int index) {
@@ -39,7 +39,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           return const NoWorkspaceScreen();
         }
 
-        // ★★★ 1. AppBarの改善 ★★★
         // アクティブなワークスペースの情報を取得してAppBarのタイトルに表示
         final activeWorkspace = ref.watch(activeWorkspaceProvider);
 
@@ -54,6 +53,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
             actions: [
+              if (user.profilePic.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(user.profilePic),
+                    radius: 18,
+                  ),
+                ),
               IconButton(
                 icon: const Icon(Icons.logout),
                 onPressed: () {
@@ -63,7 +70,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             ],
           ),
           body: IndexedStack(index: _selectedIndex, children: _pages),
-          // ★★★ 2. BottomNavigationBarの改善 ★★★
           bottomNavigationBar: BottomNavigationBar(
             onTap: _onItemTapped,
             currentIndex: _selectedIndex,
@@ -71,7 +77,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             selectedItemColor: Theme.of(context).colorScheme.primary,
             // 選択されていないアイテムの色を指定
             unselectedItemColor: Colors.grey,
-            // ★ ToDoタブを削除し、車両と設定のみに
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_car),
@@ -90,7 +95,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 }
 
-// ★★★ 3. NoWorkspaceScreenのUI改善 ★★★
 class NoWorkspaceScreen extends ConsumerWidget {
   const NoWorkspaceScreen({super.key});
 
@@ -162,7 +166,7 @@ class NoWorkspaceScreen extends ConsumerWidget {
   }
 }
 
-// ★ ファイルの下部にダイアログのWidgetを追加
+// ファイルの下部にダイアログのWidgetを追加
 class JoinWorkspaceDialog extends ConsumerStatefulWidget {
   const JoinWorkspaceDialog({super.key});
 

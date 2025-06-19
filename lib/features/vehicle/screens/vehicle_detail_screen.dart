@@ -27,7 +27,7 @@ class VehicleDetailScreen extends ConsumerWidget {
           );
         }
 
-        // ★ ワークスペース情報が取得できた後で、車両詳細のProviderを呼び出す
+        // ワークスペース情報が取得できた後で、車両詳細のProviderを呼び出す
         final vehicleData = ref.watch(
           vehicleDetailProvider((activeWorkspace.id, vehicleId)),
         );
