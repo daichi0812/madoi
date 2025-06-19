@@ -14,6 +14,8 @@ import 'package:madoi/features/record/screens/add_edit_record_screen.dart';
 import 'package:madoi/features/record/screens/record_detail_screen.dart';
 import 'package:madoi/features/todo/screens/todo_detail_screen.dart';
 import 'package:madoi/features/todo/screens/add_edit_todo_screen.dart';
+import 'package:madoi/features/chat/screens/create_channel_screen.dart';
+import 'package:madoi/features/chat/screens/chat_screen.dart';
 
 // go_routerのインスタンスをシングルトンで提供するProvider
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -36,6 +38,20 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: "/create-workspace",
         name: 'create-workspace',
         builder: (context, state) => const CreateWorkspaceScreen(),
+      ),
+      GoRoute(
+        path: '/create-channel',
+        name: 'create-channel',
+        builder: (context, state) => const CreateChannelScreen(),
+      ),
+      GoRoute(
+        path: '/workspace/:workspaceId/channel/:channelId',
+        name: 'chat',
+        builder: (context, state) {
+          final workspaceId = state.pathParameters['workspaceId']!;
+          final channelId = state.pathParameters['channelId']!;
+          return ChatScreen(workspaceId: workspaceId, channelId: channelId);
+        },
       ),
       GoRoute(
         path: '/vehicle/:vehicleId',

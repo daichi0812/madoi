@@ -9,6 +9,7 @@ import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/settings/screens/settings_screen.dart';
 import 'package:madoi/features/vehicle/screens/vehicle_screen.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
+import 'package:madoi/features/chat/screens/channel_list_screen.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -21,7 +22,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   int _selectedIndex = 0;
 
   // TodoScreenのプレースホルダーを削除し、実際の画面リストを定義
-  final List<Widget> _pages = [const VehicleScreen(), const SettingsScreen()];
+  final List<Widget> _pages = [
+    const ChannelListScreen(),
+    const VehicleScreen(),
+    const SettingsScreen(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -78,6 +83,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             // 選択されていないアイテムの色を指定
             unselectedItemColor: Colors.grey,
             items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat_bubble_outline),
+                label: 'チャット',
+              ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_car),
                 label: '車両',
