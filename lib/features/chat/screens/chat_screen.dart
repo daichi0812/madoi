@@ -42,19 +42,44 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final messagesAsync = ref.watch(
-      MessagesProviderArgs(
-        workspaceId: widget.workspaceId,
-        channelId: widget.channelId,
+      messagesProvider(
+        MessagesProviderArgs(
+          workspaceId: widget.workspaceId,
+          channelId: widget.channelId,
+        ),
       ),
     );
+
+    // AppBarのタイトルのためにチャンネル情報を取得
+    final channelAsync = ref.watch(
+      channelDetailProvider(
+        ChannelProviderArgs(
+          workspaceId: widget.workspaceId,
+          channelId: widget.channelId,
+        ),
+      ),
+    );
+
     final currentUserId = ref.watch(currentUserDataProvider).value?.uid;
 
     return Scaffold(
       appBar: AppBar(
-        // TODO: チャンネル名を動的に表示
-        title: const Text('# channel'),
+        // チャンネル情報をAppBarのタイトルに表示
+        title: channelAsync.when(
+          data: (channel) =>
+              Text(channel != null ? '# ${channel.name}' : 'チャット'),
+          loading: () => const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          ),
+          error: (err, stack) => const Text('エラー'),
+        ),
       ),
       body: Column(
         children: [

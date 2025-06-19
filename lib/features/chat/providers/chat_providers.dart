@@ -22,7 +22,7 @@ final channelsProvider = StreamProvider<List<ChannelModel>>((ref) {
   return ref.watch(chatRepositoryProvider).getChannelsStream(workspaceId);
 });
 
-// 引数用のクラス
+// 引数用のクラス(Message))
 class MessagesProviderArgs extends Equatable {
   final String workspaceId;
   final String channelId;
@@ -35,6 +35,28 @@ class MessagesProviderArgs extends Equatable {
   @override
   List<Object?> get props => [workspaceId, channelId];
 }
+
+// 引数用クラス（Channel)
+class ChannelProviderArgs extends Equatable {
+  final String workspaceId;
+  final String channelId;
+
+  const ChannelProviderArgs({
+    required this.workspaceId,
+    required this.channelId,
+  });
+
+  @override
+  List<Object?> get props => [workspaceId, channelId];
+}
+
+// チャンネル詳細
+final channelDetailProvider =
+    StreamProvider.family<ChannelModel?, ChannelProviderArgs>((ref, args) {
+      return ref
+          .watch(chatRepositoryProvider)
+          .getChannelStream(args.workspaceId, args.channelId);
+    });
 
 // メッセージ一覧
 final messagesProvider =

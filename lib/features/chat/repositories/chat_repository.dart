@@ -48,6 +48,22 @@ class ChatRepository {
     await newChannelRef.set(newChannel.toMap());
   }
 
+  // チャンネル詳細を取得
+  Stream<ChannelModel?> getChannelStream(String workspaceId, String channelId) {
+    return _firestore
+        .collection("workspaces")
+        .doc(workspaceId)
+        .collection("channels")
+        .doc(channelId)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists && snapshot.data() != null) {
+            return ChannelModel.fromMap(snapshot.data()!);
+          }
+          return null;
+        });
+  }
+
   // メッセージ一覧を取得
   Stream<List<MessageModel>> getMessagesStream(
     String workspaceId,
