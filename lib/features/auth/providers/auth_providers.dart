@@ -3,7 +3,8 @@
    Riverpod Providerを定義 */
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:madoi/features/auth/repositories/auth_repository.dart'; // 作成したRepositoryをインポート
+
+import 'package:madoi/features/auth/repositories/auth_repository.dart';
 import "package:madoi/common/models/user_model.dart";
 
 // Firestoreのユーザーデータをリアルタイムで取得するStreamProvider

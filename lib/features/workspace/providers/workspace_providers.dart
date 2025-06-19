@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:developer';
 
+import 'package:madoi/common/models/user_model.dart';
 import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/workspace/repositories/workspace_repository.dart';
 import 'package:madoi/features/workspace/models/workspace_model.dart';
@@ -32,6 +33,22 @@ final activeWorkspaceProvider = StreamProvider<WorkspaceModel?>((ref) {
   return ref
       .watch(workspaceRepositoryProvider)
       .getWorkspaceStream(activeWorkspaceId);
+});
+
+// 現在のワークスペースに参加しているメンバーのユーザー情報を取得するProvider
+final workspaceMembersProvider = StreamProvider<List<UserModel>>((ref) {
+  // 現在アクティブなワークスペースの情報を監視
+  final activeWorkspace = ref.watch(activeWorkspaceProvider).value;
+
+  // ワークスペース情報がない、またはメンバーがいない場合は空のリストを返す
+  if (activeWorkspace == null || activeWorkspace.members.isEmpty) {
+    return Stream.value([]);
+  }
+
+  // AuthRepositoryのメソッドを呼び出してメンバーの情報を取得
+  return ref
+      .watch(authRepositoryProvider)
+      .getUsersStream(activeWorkspace.members);
 });
 
 // 状態としてローディング中(true)か否(false)かを持つStateNotifier

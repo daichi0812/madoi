@@ -98,4 +98,22 @@ class AuthRepository {
       return null;
     });
   }
+
+  // 複数のユーザーIDのリストから、該当するユーザーのリストをStreamで取得する
+  Stream<List<UserModel>> getUsersStream(List<String> uids) {
+    // uidsのリストがからの場合は、からのリストを返すStreamを返す
+    if (uids.isEmpty) {
+      return Stream.value([]);
+    }
+    // Firestoreの 'whereIn' のクエリを使い、uidsリストに含まれるIDを持つユーザーを全て取得
+    return _firestore
+        .collection("users")
+        .where('uid', whereIn: uids)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => UserModel.fromMap(doc.data()))
+              .toList(),
+        );
+  }
 }

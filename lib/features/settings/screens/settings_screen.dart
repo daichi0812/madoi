@@ -9,7 +9,10 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // ワークスペースの情報を監視
     final workspaceData = ref.watch(activeWorkspaceProvider);
+    // ワークスペースのメンバー情報を監視
+    final membersData = ref.watch(workspaceMembersProvider);
 
     return Scaffold(
       body: workspaceData.when(
@@ -37,7 +40,40 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              // 他にもメンバー管理などの設定項目を追加できる
+              const Divider(height: 32),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                child: Text(
+                  '参加中のメンバー (${membersData.value?.length ?? 0})',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              // ★ メンバー一覧を非同期で表示
+              membersData.when(
+                data: (members) {
+                  if (members.isEmpty) {
+                    return const ListTile(title: Text('メンバーがいません'));
+                  }
+                  // ListViewの中に直接Widgetのリストを展開
+                  return Column(
+                    children: members.map((member) {
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(member.profilePic),
+                        ),
+                        title: Text(member.name),
+                        subtitle: Text(member.email),
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => ListTile(
+                  leading: const Icon(Icons.error, color: Colors.red),
+                  title: const Text('メンバーの読み込みに失敗しました'),
+                  subtitle: Text(err.toString()),
+                ),
+              ),
             ],
           );
         },
