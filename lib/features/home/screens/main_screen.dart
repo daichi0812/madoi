@@ -146,7 +146,7 @@ class NoWorkspaceScreen extends ConsumerWidget {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  context.go('/create-workspace');
+                  context.push('/create-workspace');
                 },
               ),
               const SizedBox(height: 12),
