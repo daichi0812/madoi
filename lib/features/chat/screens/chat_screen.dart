@@ -112,27 +112,88 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Widget _buildMessageBubble(MessageModel message, bool isMe) {
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        decoration: BoxDecoration(
-          color: isMe
-              ? Theme.of(context).colorScheme.primary
-              : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          message.text,
-          style: TextStyle(
+    // 自分のメッセージの場合
+    if (isMe) {
+      return Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+          decoration: BoxDecoration(
             color: isMe
-                ? Theme.of(context).colorScheme.onPrimary
-                : Colors.black,
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            message.text,
+            style: TextStyle(
+              color: isMe
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Colors.black,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
+    // 他のユーザーのメッセージの場合
+    else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // プロフィール画像
+            CircleAvatar(
+              radius: 18,
+              backgroundImage: message.senderProfilePic.isNotEmpty
+                  ? NetworkImage(message.senderProfilePic)
+                  : null,
+              child: message.senderProfilePic.isEmpty
+                  ? const Icon(Icons.person, size: 20)
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            // 名前とメッセージの吹き出し
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 送信者名
+                  Text(
+                    message.senderName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // メッセージの吹き出し
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.75,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      message.text,
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildMessageInput() {
