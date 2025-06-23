@@ -43,7 +43,12 @@ final todoDetailProvider =
 final todoControllerProvider = StateNotifierProvider<TodoController, bool>((
   ref,
 ) {
-  return TodoController(todoRepository: ref.watch(todoRepositoryProvider));
+  final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+  return TodoController(
+    todoRepository: ref.watch(todoRepositoryProvider),
+    workspaceId: activeWorkspaceId,
+    ref: ref,
+  );
 });
 
 // ToDo一覧を取得するStreamProvider.family
@@ -65,9 +70,16 @@ final todosProvider = StreamProvider.family<List<TodoModel>, String>((
 
 class TodoController extends StateNotifier<bool> {
   final TodoRepository _todoRepository;
-  TodoController({required TodoRepository todoRepository})
-    : _todoRepository = todoRepository,
-      super(false);
+  final String? _workspaceId;
+  final Ref _ref;
+  TodoController({
+    required TodoRepository todoRepository,
+    required String? workspaceId,
+    required Ref ref,
+  }) : _todoRepository = todoRepository,
+       _workspaceId = workspaceId,
+       _ref = ref,
+       super(false);
 
   Future<bool> addTodo({
     required BuildContext context,
@@ -128,6 +140,34 @@ class TodoController extends StateNotifier<bool> {
     return isSuccess;
   }
 
+  // 並び替えメソッドを追加
+  Future<void> reorderTodos({
+    required String vehicleId,
+    required int oldIndex,
+    required int newIndex,
+  }) async {
+    if (_workspaceId == null) return;
+
+    // 現在のリストを取得
+    final todos = _ref.read(todosProvider(vehicleId)).value ?? [];
+    final incompleteTodos = todos.where((t) => !t.isDone).toList();
+
+    // D&Dのためのインデックス調整
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+
+    // リストを並び替え
+    final item = incompleteTodos.removeAt(oldIndex);
+    incompleteTodos.insert(newIndex, item);
+
+    await _todoRepository.reorderTodos(
+      workspaceId: _workspaceId,
+      vehicleId: vehicleId,
+      todos: incompleteTodos,
+    );
+  }
+
   Future<void> toggleTodoStatus({
     required String workspaceId,
     required String vehicleId,
@@ -140,6 +180,16 @@ class TodoController extends StateNotifier<bool> {
       todoId: todoId,
       isDone: isDone,
     );
+    // 完了状態を更新したら未完了リストを再ソートする
+    if (!isDone) {
+      final todos = _ref.read(todosProvider(vehicleId)).value ?? [];
+      final incompleteTodos = todos.where((t) => !t.isDone).toList();
+      await _todoRepository.reorderTodos(
+        workspaceId: workspaceId,
+        vehicleId: vehicleId,
+        todos: incompleteTodos,
+      );
+    }
   }
 
   Future<void> deleteTodo({

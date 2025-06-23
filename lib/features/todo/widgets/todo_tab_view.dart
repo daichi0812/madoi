@@ -30,8 +30,9 @@ class TodoTabView extends ConsumerWidget {
       }
     }
 
-    Widget buildTodoTile(TodoModel todo) {
+    Widget buildTodoTile(TodoModel todo, {bool isReorderable = false}) {
       return ListTile(
+        key: ValueKey(todo.id),
         leading: Checkbox(
           value: todo.isDone,
           onChanged: (isDone) => toggleStatus(todo, isDone ?? false),
@@ -48,6 +49,12 @@ class TodoTabView extends ConsumerWidget {
         subtitle: todo.isDone && todo.completedAt != null
             ? Text(
                 '完了: ${DateFormat('yyyy/MM/dd').format(todo.completedAt!.toDate())}',
+              )
+            : null,
+        trailing: isReorderable
+            ? ReorderableDragStartListener(
+                index: todo.position,
+                child: const Icon(Icons.drag_handle),
               )
             : null,
         onTap: () {
@@ -75,13 +82,33 @@ class TodoTabView extends ConsumerWidget {
             return const Center(child: Text('ToDoはありません'));
           }
 
-          return ListView(
-            children: [
-              ...incompleteTodos.map(buildTodoTile),
+          return CustomScrollView(
+            slivers: [
+              SliverReorderableList(
+                itemCount: incompleteTodos.length,
+                itemBuilder: (context, index) {
+                  final todo = incompleteTodos[index];
+                  // isReorderableをtrueにしてハンドルを表示
+                  return buildTodoTile(todo, isReorderable: true);
+                },
+                onReorder: (oldIndex, newIndex) {
+                  ref
+                      .read(todoControllerProvider.notifier)
+                      .reorderTodos(
+                        vehicleId: vehicleId,
+                        oldIndex: oldIndex,
+                        newIndex: newIndex,
+                      );
+                },
+              ),
               if (completeTodos.isNotEmpty)
-                ExpansionTile(
-                  title: Text('完了 (${completeTodos.length})'),
-                  children: completeTodos.map(buildTodoTile).toList(),
+                SliverToBoxAdapter(
+                  child: ExpansionTile(
+                    title: Text('完了 (${completeTodos.length})'),
+                    children: completeTodos
+                        .map((todo) => buildTodoTile(todo))
+                        .toList(),
+                  ),
                 ),
             ],
           );

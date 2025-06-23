@@ -8,22 +8,29 @@ class TodoRepository {
   TodoRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
+  // 基準となるコレクションへの参照を返すヘルパー
+  CollectionReference _todosRef(String workspaceId, String vehicleId) {
+    return _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('todos');
+  }
+
   // サブコレクションのパスを指定
   Stream<List<TodoModel>> getTodosStream({
     required String workspaceId,
     required String vehicleId,
   }) {
-    return _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection("vehicles")
-        .doc(vehicleId)
-        .collection('todos')
-        .orderBy('createdAt', descending: true) // 作成順と逆に並べる
+    return _todosRef(workspaceId, vehicleId)
+        .orderBy('position')
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => TodoModel.fromMap(doc.data()))
+              .map(
+                (doc) => TodoModel.fromMap(doc.data() as Map<String, dynamic>),
+              )
               .toList(),
         );
   }
@@ -34,20 +41,14 @@ class TodoRepository {
     required String vehicleId,
     required String todoId,
   }) {
-    return _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection("vehicles")
-        .doc(vehicleId)
-        .collection("todos")
-        .doc(todoId)
-        .snapshots()
-        .map((snapshot) {
-          if (snapshot.exists && snapshot.data() != null) {
-            return TodoModel.fromMap(snapshot.data()!);
-          }
-          return null;
-        });
+    return _todosRef(workspaceId, vehicleId).doc(todoId).snapshots().map((
+      snapshot,
+    ) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return TodoModel.fromMap(snapshot.data() as Map<String, dynamic>);
+      }
+      return null;
+    });
   }
 
   // 新しいToDoを追加
@@ -56,22 +57,46 @@ class TodoRepository {
     required String vehicleId,
     required String workspaceId,
   }) async {
-    final newTodoRef = _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection("vehicles")
-        .doc(vehicleId)
-        .collection('todos')
-        .doc();
-    final newTodo = TodoModel(
-      id: newTodoRef.id,
-      content: content,
-      isDone: false,
-      createdAt: Timestamp.now(),
-      vehicleId: vehicleId,
-      workspaceId: workspaceId,
-    );
-    await newTodoRef.set(newTodo.toMap());
+    final todosCollection = _todosRef(workspaceId, vehicleId);
+    // トランザクションを使い、現在のToDo数を安全に取得してpositionを設定
+    await _firestore.runTransaction((transaction) async {
+      // isDoneがfalseのToDoの数を取得
+      final querySnapshot = await todosCollection
+          .where('isDone', isEqualTo: false)
+          .get();
+      final newPosition = querySnapshot.docs.length;
+
+      final newTodoRef = todosCollection.doc();
+      final newTodo = TodoModel(
+        id: newTodoRef.id,
+        content: content,
+        isDone: false,
+        position: newPosition,
+        createdAt: Timestamp.now(),
+        vehicleId: vehicleId,
+        workspaceId: workspaceId,
+      );
+      transaction.set(newTodoRef, newTodo.toMap());
+    });
+  }
+
+  // ToDoを並び替えるメソッド
+  Future<void> reorderTodos({
+    required String workspaceId,
+    required String vehicleId,
+    required List<TodoModel> todos,
+  }) async {
+    final batch = _firestore.batch();
+    final todosCollection = _todosRef(workspaceId, vehicleId);
+
+    for (int i = 0; i < todos.length; ++i) {
+      final todo = todos[i];
+      if (todo.position != i) {
+        final docRef = todosCollection.doc(todo.id);
+        batch.update(docRef, {'position': i});
+      }
+    }
+    await batch.commit();
   }
 
   // ToDoの内容を更新するメソッドを追加
@@ -81,14 +106,10 @@ class TodoRepository {
     required String todoId,
     required String content,
   }) async {
-    await _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection('vehicles')
-        .doc(vehicleId)
-        .collection('todos')
-        .doc(todoId)
-        .update({'content': content});
+    await _todosRef(
+      workspaceId,
+      vehicleId,
+    ).doc(todoId).update({'content': content});
   }
 
   // ToDoの完了状態を切り替える
@@ -98,18 +119,13 @@ class TodoRepository {
     required String todoId,
     required bool isDone,
   }) async {
-    final todoRef = _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection("vehicles")
-        .doc(vehicleId)
-        .collection('todos')
-        .doc(todoId);
+    final todoRef = _todosRef(workspaceId, vehicleId).doc(todoId);
 
-    // 完了状態に応じてcompletedAtを更新
+    // 完了状態に応じてcompletedAtとpositionを更新
     await todoRef.update({
       'isDone': isDone,
       'completedAt': isDone ? Timestamp.now() : null,
+      'position': isDone ? -1 : 9999, // 完了時は-1、未完了に戻す時は大きな値（後で再ソート）
     });
   }
 
@@ -119,13 +135,6 @@ class TodoRepository {
     required String vehicleId,
     required String todoId,
   }) async {
-    await _firestore
-        .collection("workspaces")
-        .doc(workspaceId)
-        .collection("vehicles")
-        .doc(vehicleId)
-        .collection("todos")
-        .doc(todoId)
-        .delete();
+    await _todosRef(workspaceId, vehicleId).doc(todoId).delete();
   }
 }

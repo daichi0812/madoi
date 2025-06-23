@@ -6,6 +6,7 @@ class TodoModel extends Equatable {
   final String id;
   final String content;
   final bool isDone;
+  final int position;
   final String vehicleId;
   final String workspaceId;
   final Timestamp createdAt;
@@ -16,6 +17,7 @@ class TodoModel extends Equatable {
     required this.id,
     required this.content,
     required this.isDone,
+    required this.position,
     required this.vehicleId,
     required this.workspaceId,
     required this.createdAt,
@@ -28,6 +30,7 @@ class TodoModel extends Equatable {
     String? id,
     String? content,
     bool? isDone,
+    int? position,
     String? vehicleId,
     String? workspaceId,
     Timestamp? createdAt,
@@ -39,6 +42,7 @@ class TodoModel extends Equatable {
       id: id ?? this.id,
       content: content ?? this.content,
       isDone: isDone ?? this.isDone,
+      position: position ?? this.position,
       vehicleId: vehicleId ?? this.vehicleId,
       workspaceId: workspaceId ?? this.workspaceId,
       createdAt: createdAt ?? this.createdAt,
@@ -53,6 +57,7 @@ class TodoModel extends Equatable {
       'id': id,
       'content': content,
       'isDone': isDone,
+      'position': position,
       'vehicleId': vehicleId,
       'workspaceId': workspaceId,
       'createdAt': createdAt,
@@ -66,6 +71,7 @@ class TodoModel extends Equatable {
       id: map['id'] ?? '',
       content: map['content'] ?? '',
       isDone: map['isDone'] ?? false,
+      position: map['position'] ?? 0,
       vehicleId: map['vehicleId'] ?? '',
       workspaceId: map['workspaceId'] ?? '',
       createdAt: map['createdAt'] ?? Timestamp.now(),
@@ -79,6 +85,7 @@ class TodoModel extends Equatable {
     id,
     content,
     isDone,
+    position,
     vehicleId,
     createdAt,
     createdBy,
