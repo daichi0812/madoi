@@ -12,6 +12,7 @@ class TodoModel extends Equatable {
   final Timestamp createdAt;
   final String? createdBy;
   final Timestamp? completedAt;
+  final String? completedBy;
 
   const TodoModel({
     required this.id,
@@ -23,6 +24,7 @@ class TodoModel extends Equatable {
     required this.createdAt,
     this.createdBy,
     this.completedAt,
+    this.completedBy,
   });
 
   // copyWithメソッドを更新
@@ -35,8 +37,10 @@ class TodoModel extends Equatable {
     String? workspaceId,
     Timestamp? createdAt,
     String? createdBy,
+    String? completedBy,
     Timestamp? completedAt,
     bool completedAtToNull = false,
+    bool completedByToNull = false,
   }) {
     return TodoModel(
       id: id ?? this.id,
@@ -47,8 +51,8 @@ class TodoModel extends Equatable {
       workspaceId: workspaceId ?? this.workspaceId,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
-      // ★ completedAtをnullにするためのロジックを追加
       completedAt: completedAtToNull ? null : completedAt ?? this.completedAt,
+      completedBy: completedByToNull ? null : completedBy ?? this.completedBy,
     );
   }
 
@@ -62,7 +66,8 @@ class TodoModel extends Equatable {
       'workspaceId': workspaceId,
       'createdAt': createdAt,
       'createdBy': createdBy,
-      'completedAt': completedAt, // ★ toMapに追加
+      'completedAt': completedAt, // toMapに追加
+      'completedBy': completedBy, // toMapに追加
     };
   }
 
@@ -76,7 +81,8 @@ class TodoModel extends Equatable {
       workspaceId: map['workspaceId'] ?? '',
       createdAt: map['createdAt'] ?? Timestamp.now(),
       createdBy: map['createdBy'],
-      completedAt: map['completedAt'], // ★ fromMapに追加
+      completedAt: map['completedAt'], // fromMapに追加
+      completedBy: map['completedBy'], // fromMapに追加
     );
   }
 
@@ -89,6 +95,7 @@ class TodoModel extends Equatable {
     vehicleId,
     createdAt,
     createdBy,
-    completedAt, // ★ Equatableのpropsに追加
+    completedAt, // Equatableのpropsに追加
+    completedBy, // Equatableのpropsに追加
   ];
 }

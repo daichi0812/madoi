@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
 import 'package:madoi/features/todo/providers/todo_providers.dart';
+import 'package:madoi/features/workspace/providers/workspace_providers.dart';
 
 class TodoDetailScreen extends ConsumerWidget {
   final String workspaceId;
@@ -64,6 +66,7 @@ class TodoDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+    final members = ref.watch(workspaceMembersProvider).value ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -98,6 +101,14 @@ class TodoDetailScreen extends ConsumerWidget {
             return const Center(child: Text('タスクが見つかりません'));
           }
           final createdAt = todo.createdAt.toDate();
+          String completedByText = '';
+          if (todo.isDone && todo.completedBy != null) {
+            final completer = members.firstWhere(
+              (m) => m.uid == todo.completedBy,
+            );
+            completedByText = ' by ${completer.name}';
+          }
+
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
@@ -119,9 +130,7 @@ class TodoDetailScreen extends ConsumerWidget {
                   leading: const Icon(Icons.check_circle_outline),
                   title: const Text('完了日'),
                   subtitle: Text(
-                    DateFormat(
-                      'yyyy/MM/dd HH:mm',
-                    ).format(todo.completedAt!.toDate()),
+                    '${DateFormat('yyyy/MM/dd HH:mm').format(todo.completedAt!.toDate())}$completedByText',
                   ),
                 ),
             ],

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import 'package:madoi/features/auth/providers/auth_providers.dart';
 import 'package:madoi/features/todo/models/todo_model.dart';
 import 'package:madoi/features/todo/providers/todo_providers.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
@@ -16,9 +17,11 @@ class TodoTabView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final todosAsyncValue = ref.watch(todosProvider(vehicleId));
     final activeWorkspaceId = ref.watch(activeWorkspaceProvider).value?.id;
+    final currentUserId = ref.watch(currentUserDataProvider).value?.uid;
+    final members = ref.watch(workspaceMembersProvider).value ?? [];
 
     void toggleStatus(TodoModel todo, bool isDone) {
-      if (activeWorkspaceId != null) {
+      if (activeWorkspaceId != null && currentUserId != null) {
         ref
             .read(todoControllerProvider.notifier)
             .toggleTodoStatus(
@@ -26,6 +29,7 @@ class TodoTabView extends ConsumerWidget {
               vehicleId: vehicleId,
               todoId: todo.id,
               isDone: isDone,
+              userId: currentUserId,
             );
       }
     }
@@ -35,6 +39,13 @@ class TodoTabView extends ConsumerWidget {
       final difference = now.difference(todo.createdAt.toDate());
       // 未完了かつ7日以上経過しているか
       final bool isOverdue = difference.inDays >= 7 && !todo.isDone;
+
+      String completedByText = '';
+      if (todo.isDone && todo.completedBy != null) {
+        final completer = members.firstWhere((m) => m.uid == todo.completedBy);
+        completedByText = 'by: ${completer.name}';
+      }
+
       return ListTile(
         key: ValueKey(todo.id),
         leading: Checkbox(
@@ -68,7 +79,7 @@ class TodoTabView extends ConsumerWidget {
         ),
         subtitle: todo.isDone && todo.completedAt != null
             ? Text(
-                '完了: ${DateFormat('yyyy/MM/dd').format(todo.completedAt!.toDate())}',
+                '完了: ${DateFormat('yyyy/MM/dd').format(todo.completedAt!.toDate())} $completedByText',
               )
             : null,
         trailing: isReorderable

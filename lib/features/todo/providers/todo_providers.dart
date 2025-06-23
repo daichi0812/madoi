@@ -173,12 +173,14 @@ class TodoController extends StateNotifier<bool> {
     required String vehicleId,
     required String todoId,
     required bool isDone,
+    required String userId,
   }) async {
     await _todoRepository.toggleTodoStatus(
       workspaceId: workspaceId,
       vehicleId: vehicleId,
       todoId: todoId,
       isDone: isDone,
+      userId: userId,
     );
     // 完了状態を更新したら未完了リストを再ソートする
     // if (!isDone) {

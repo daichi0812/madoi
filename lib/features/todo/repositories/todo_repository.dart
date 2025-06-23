@@ -125,6 +125,7 @@ class TodoRepository {
     required String vehicleId,
     required String todoId,
     required bool isDone,
+    required String userId,
   }) async {
     final todosCollection = _todosRef(workspaceId, vehicleId);
     final todoRef = _todosRef(workspaceId, vehicleId).doc(todoId);
@@ -135,6 +136,7 @@ class TodoRepository {
       await todoRef.update({
         'isDone': isDone,
         'completedAt': isDone ? Timestamp.now() : null,
+        'completedBy': userId,
         'position': -1,
       });
     } else {
@@ -155,6 +157,7 @@ class TodoRepository {
         transaction.update(todoRef, {
           'isDone': false,
           'completedAt': null,
+          'completedBy': null,
           'position': 0,
         });
       });
