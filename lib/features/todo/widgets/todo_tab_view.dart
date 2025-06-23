@@ -100,6 +100,14 @@ class TodoTabView extends ConsumerWidget {
                         newIndex: newIndex,
                       );
                 },
+                proxyDecorator:
+                    (Widget child, int index, Animation<double> animation) {
+                      return Material(
+                        elevation: 4.0,
+                        color: Colors.transparent,
+                        child: child,
+                      );
+                    },
               ),
               if (completeTodos.isNotEmpty)
                 SliverToBoxAdapter(
