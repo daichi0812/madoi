@@ -69,6 +69,16 @@ class TodoDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('タスクの詳細'),
         actions: [
+          // 編集ボタン
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: '編集',
+            onPressed: () {
+              context.push(
+                '/workspace/$workspaceId/vehicle/$vehicleId/todo/$todoId/edit',
+              );
+            },
+          ),
           // 削除ボタン
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -78,16 +88,6 @@ class TodoDetailScreen extends ConsumerWidget {
               if (todo != null) {
                 _showDeleteConfirmationDialog(context, ref, todo.content);
               }
-            },
-          ),
-          // 編集ボタン
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: '編集',
-            onPressed: () {
-              context.push(
-                '/workspace/$workspaceId/vehicle/$vehicleId/todo/$todoId/edit',
-              );
             },
           ),
         ],

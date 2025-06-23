@@ -94,4 +94,20 @@ class RecordRepository {
         .doc(recordId)
         .update({'content': content});
   }
+
+  // 記録を削除するメソッド
+  Future<void> deleteRecord({
+    required String workspaceId,
+    required String vehicleId,
+    required String recordId,
+  }) async {
+    await _firestore
+        .collection('workspaces')
+        .doc(workspaceId)
+        .collection('vehicles')
+        .doc(vehicleId)
+        .collection('records')
+        .doc(recordId)
+        .delete();
+  }
 }

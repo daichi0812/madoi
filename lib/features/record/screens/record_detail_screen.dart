@@ -19,6 +19,40 @@ class RecordDetailScreen extends ConsumerWidget {
     required this.recordId,
   });
 
+  // 削除確認ダイヤログを表示するメソッド
+  void _showDeleteConfirmationDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('記録の削除'),
+          content: const Text('この記録を本当に削除しますか？\nこの操作は取り消せません。'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('キャンセル'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+            ),
+            TextButton(
+              child: const Text('削除', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                ref
+                    .read(recordControllerProvider.notifier)
+                    .deleteRecord(
+                      workspaceId: workspaceId,
+                      vehicleId: vehicleId,
+                      recordId: recordId,
+                      context: context,
+                    );
+                Navigator.of(dialogContext).pop(); // ダイアログを閉じる
+                context.pop(); // 詳細画面を閉じる
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Providerから単一のrecordを取得する
@@ -51,6 +85,15 @@ class RecordDetailScreen extends ConsumerWidget {
               context.push(
                 '/workspace/$workspaceId/vehicle/$vehicleId/record/$recordId/edit',
               );
+            },
+          ),
+          // 削除ボタン
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            tooltip: '削除',
+            onPressed: () {
+              // 削除確認ダイアログを表示
+              _showDeleteConfirmationDialog(context, ref);
             },
           ),
         ],

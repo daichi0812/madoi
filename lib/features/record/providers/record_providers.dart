@@ -147,4 +147,29 @@ class RecordController extends StateNotifier<bool> {
     }
     return isSuccess;
   }
+
+  Future<void> deleteRecord({
+    required String workspaceId,
+    required String vehicleId,
+    required String recordId,
+    required BuildContext context,
+  }) async {
+    state = true;
+    try {
+      await _recordRepository.deleteRecord(
+        workspaceId: workspaceId,
+        vehicleId: vehicleId,
+        recordId: recordId,
+      );
+    } catch (e) {
+      log('記録削除エラー: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('エラーが発生しました: ${e.toString()}')));
+      }
+    } finally {
+      state = false;
+    }
+  }
 }
