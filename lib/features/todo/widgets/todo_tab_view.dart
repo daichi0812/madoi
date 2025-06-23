@@ -31,20 +31,40 @@ class TodoTabView extends ConsumerWidget {
     }
 
     Widget buildTodoTile(TodoModel todo, {bool isReorderable = false}) {
+      final now = DateTime.now();
+      final difference = now.difference(todo.createdAt.toDate());
+      // 未完了かつ7日以上経過しているか
+      final bool isOverdue = difference.inDays >= 7 && !todo.isDone;
       return ListTile(
         key: ValueKey(todo.id),
         leading: Checkbox(
           value: todo.isDone,
           onChanged: (isDone) => toggleStatus(todo, isDone ?? false),
         ),
-        title: Text(
-          todo.content,
-          style: todo.isDone
-              ? const TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  color: Colors.grey,
-                )
-              : null,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                todo.content,
+                style: todo.isDone
+                    ? const TextStyle(
+                        decoration: TextDecoration.lineThrough,
+                        color: Colors.grey,
+                      )
+                    : null,
+              ),
+            ),
+            // 経過していたら警告アイコンを表示
+            if (isOverdue)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange.shade700,
+                  size: 18,
+                ),
+              ),
+          ],
         ),
         subtitle: todo.isDone && todo.completedAt != null
             ? Text(
