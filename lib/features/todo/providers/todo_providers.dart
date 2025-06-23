@@ -181,15 +181,15 @@ class TodoController extends StateNotifier<bool> {
       isDone: isDone,
     );
     // 完了状態を更新したら未完了リストを再ソートする
-    if (!isDone) {
-      final todos = _ref.read(todosProvider(vehicleId)).value ?? [];
-      final incompleteTodos = todos.where((t) => !t.isDone).toList();
-      await _todoRepository.reorderTodos(
-        workspaceId: workspaceId,
-        vehicleId: vehicleId,
-        todos: incompleteTodos,
-      );
-    }
+    // if (!isDone) {
+    //   final todos = _ref.read(todosProvider(vehicleId)).value ?? [];
+    //   final incompleteTodos = todos.where((t) => !t.isDone).toList();
+    //   await _todoRepository.reorderTodos(
+    //     workspaceId: workspaceId,
+    //     vehicleId: vehicleId,
+    //     todos: incompleteTodos,
+    //   );
+    // }
   }
 
   Future<void> deleteTodo({

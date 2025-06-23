@@ -58,20 +58,27 @@ class TodoRepository {
     required String workspaceId,
   }) async {
     final todosCollection = _todosRef(workspaceId, vehicleId);
+    final newTodoRef = todosCollection.doc();
+
     // トランザクションを使い、現在のToDo数を安全に取得してpositionを設定
     await _firestore.runTransaction((transaction) async {
       // isDoneがfalseのToDoの数を取得
       final querySnapshot = await todosCollection
           .where('isDone', isEqualTo: false)
           .get();
-      final newPosition = querySnapshot.docs.length;
 
-      final newTodoRef = todosCollection.doc();
+      // 既存の未完了ToDoのpositionを+1する
+      for (final doc in querySnapshot.docs) {
+        final currentPosition = doc.get('position') as int;
+        transaction.update(doc.reference, {'position': currentPosition + 1});
+      }
+
+      // 新しいToDoをposition: 0で作成
       final newTodo = TodoModel(
         id: newTodoRef.id,
         content: content,
         isDone: false,
-        position: newPosition,
+        position: 0,
         createdAt: Timestamp.now(),
         vehicleId: vehicleId,
         workspaceId: workspaceId,
@@ -119,14 +126,39 @@ class TodoRepository {
     required String todoId,
     required bool isDone,
   }) async {
+    final todosCollection = _todosRef(workspaceId, vehicleId);
     final todoRef = _todosRef(workspaceId, vehicleId).doc(todoId);
 
     // 完了状態に応じてcompletedAtとpositionを更新
-    await todoRef.update({
-      'isDone': isDone,
-      'completedAt': isDone ? Timestamp.now() : null,
-      'position': isDone ? -1 : 9999, // 完了時は-1、未完了に戻す時は大きな値（後で再ソート）
-    });
+    if (isDone) {
+      // 完了にする場合（リストから見えなくなり、完了済みリストへ）
+      await todoRef.update({
+        'isDone': isDone,
+        'completedAt': isDone ? Timestamp.now() : null,
+        'position': -1,
+      });
+    } else {
+      // 未完了に戻す場合（一番上に追加）
+      await _firestore.runTransaction((transaction) async {
+        // 既存の未完了ToDoを取得
+        final querySnapshot = await todosCollection
+            .where('isDone', isEqualTo: false)
+            .get();
+
+        // 既存の未完了ToDoのpositionを+1する
+        for (final doc in querySnapshot.docs) {
+          final currentPosition = doc.get('position') as int;
+          transaction.update(doc.reference, {'position': currentPosition + 1});
+        }
+
+        // 対象のToDoを未完了に戻し、position: 0に設定
+        transaction.update(todoRef, {
+          'isDone': false,
+          'completedAt': null,
+          'position': 0,
+        });
+      });
+    }
   }
 
   // ToDoを削除するメソッド
