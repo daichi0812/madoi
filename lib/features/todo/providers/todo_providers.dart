@@ -7,6 +7,7 @@ import 'dart:developer';
 import 'package:madoi/features/todo/models/todo_model.dart';
 import 'package:madoi/features/todo/repositories/todo_repository.dart';
 import 'package:madoi/features/workspace/providers/workspace_providers.dart';
+import 'package:madoi/features/auth/providers/auth_providers.dart';
 
 // Repository
 final todoRepositoryProvider = Provider((ref) => TodoRepository());
@@ -89,11 +90,26 @@ class TodoController extends StateNotifier<bool> {
   }) async {
     state = false;
     bool isSuccess = false;
+
+    final creatorId = _ref.read(currentUserDataProvider).value?.uid;
+
+    if (creatorId == null) {
+      log('ToDo追加エラー: ユーザーが取得できませんでした。');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('エラー: ユーザー情報が取得できませんでした。')),
+        );
+      }
+      state = false;
+      return false;
+    }
+
     try {
       await _todoRepository.addTodo(
         content: content,
         vehicleId: vehicleId,
         workspaceId: workspaceId,
+        creatorId: creatorId,
       );
       isSuccess = true;
     } catch (e) {

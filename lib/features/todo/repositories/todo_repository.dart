@@ -56,6 +56,7 @@ class TodoRepository {
     required String content,
     required String vehicleId,
     required String workspaceId,
+    required String creatorId,
   }) async {
     final todosCollection = _todosRef(workspaceId, vehicleId);
     final newTodoRef = todosCollection.doc();
@@ -80,6 +81,7 @@ class TodoRepository {
         isDone: false,
         position: 0,
         createdAt: Timestamp.now(),
+        createdBy: creatorId,
         vehicleId: vehicleId,
         workspaceId: workspaceId,
       );
