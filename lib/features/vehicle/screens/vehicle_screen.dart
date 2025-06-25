@@ -138,6 +138,7 @@ class VehicleScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('エラー: ${err.toString()}')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add-vehicle',
         onPressed: () => _showAddVehicleDialog(context, ref),
         tooltip: '新しい車両を追加',
         child: const Icon(Icons.add),

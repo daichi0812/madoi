@@ -67,6 +67,7 @@ class RecordTabView extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('エラー: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add-record-${recordType.name}',
         onPressed: () {
           // 記録追加画面へ遷移
           context.push(

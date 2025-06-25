@@ -63,6 +63,7 @@ class ChannelListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('エラー: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add-channel',
         onPressed: () {
           context.push('/create-channel');
         },

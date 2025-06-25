@@ -156,6 +156,7 @@ class TodoTabView extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('エラー: $err')),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'add-todo',
         onPressed: () {
           if (activeWorkspaceId != null) {
             context.push(

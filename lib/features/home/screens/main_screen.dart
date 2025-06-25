@@ -165,6 +165,7 @@ class NoWorkspaceScreen extends ConsumerWidget {
       ),
       // ログアウトボタンを右上に配置
       floatingActionButton: FloatingActionButton.small(
+        heroTag: 'logout-button',
         onPressed: () => ref.read(authRepositoryProvider).signOut(),
         elevation: 0,
         backgroundColor: Colors.transparent,
